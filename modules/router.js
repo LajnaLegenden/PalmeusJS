@@ -150,8 +150,6 @@ module.exports = (app) => {
 
     });
     app.post('/teams/:id/invite', async (req, res) => {
-        console.log(req.body);
-        return;
         let id = req.params.id;
         let admin = await Storage.verifyAdmin(id, req.session.user);
         if (!admin.length) {
@@ -196,9 +194,9 @@ module.exports = (app) => {
             function sendInviteToUsername(toUser) {
                 inviteByEmail(toUser.email)
             }
-            function inviteByEmail(email) {
+            async function inviteByEmail(email) {
 
-                let invite = Storage.inviteByEmail(toUser);
+                let invite = await Storage.inviteByEmail(email, req.body.elo, req.body.pos, req.session.user, id);
             }
             async function err(err) {
                 let error = {}

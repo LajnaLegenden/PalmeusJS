@@ -13,6 +13,8 @@ const addAdmin = `INSERT INTO admin (teamID,username,addedBy) VALUES (?,?,?)`
 const verifyAdmin = `SELECT * FROM admin WHERE username = ? AND teamID = ?`;
 const getTeamByID = `SELECT * FROM teams WHERE id = ?`;
 const isRealUsername = `SELECT username FROM users WHERE username = ?`;
+const isTokenValid = `SELECT * FROM invite WHERE id = ?`;
+const addEmailInvite = `INSERT INTO invite (toEmail,elo,position,id,fromUser,team,typeOfInvite) VALUES (?,?,?,?,?,?,?)`
 
 
 class Database {
@@ -61,6 +63,16 @@ class Database {
     async isRealUsername(username) {
         return (await mysql.queryP(isRealUsername, username)).length ? true : false;
     }
+    async inviteByEmail(email, elo, pos, from, team) {
+        let token = await getToken();
+        console.log(email, elo, pos, from, token)
+        let stmt = await mysql.queryP(addEmailInvite, [email, elo, pos, token, from, team, "EMAIL"]);
+        console.log(await stmt);
+        return stmt;
+    }
+    async isTokenValid(token) {
+        return await !mysql.queryP(isTokenValid, token);
+    }
 }
 
 function getNewId() {
@@ -75,6 +87,21 @@ function getNewId() {
         return out;
     } else {
         return getNewId();
+    }
+}
+
+async function getToken() {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const idLength = 16;
+    let out = "";
+    for (let i = 0; i < idLength; i++) {
+        let rnd = Math.floor(Math.random() * chars.length);
+        out += chars[rnd];
+    }
+    if (Storage.isTokenValid(out)) {
+        return out;
+    } else {
+        return getToken();
     }
 }
 

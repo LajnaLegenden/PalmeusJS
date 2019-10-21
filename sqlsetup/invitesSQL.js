@@ -9,7 +9,8 @@ async function doStuff() {
         fromUser varchar(255),
         toEmail varchar(63),
         position varchar(15),
-        elo varchar(15)
+        elo varchar(15),
+        team varchar(127)
     );`, (error, results, fields) => {
         if (error) {
             console.log("error creating table topics ", error);

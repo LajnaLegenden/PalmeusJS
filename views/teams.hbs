@@ -30,7 +30,28 @@
         </nav>
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="managedTeams" role="tabpanel" aria-labelledby="nav-home-tab">
-                managedTeams
+                {{#if managedTeams}}
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+
+                            <th scope="col">Name</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each managedTeams}}
+                        <tr>
+                            <td><a href="/teams/{{this.id}}">{{this.name}}</a></td>
+                            <td>{{this.description}}</td>
+                            <td>{{this.id}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+
+                {{/if}}
             </div>
             <div class="tab-pane fade" id="joinedTeams" role="tabpanel" aria-labelledby="nav-profile-tab">Joined</div>
             <div class="tab-pane fade" id="invites" role="tabpanel" aria-labelledby="nav-contact-tab">invites</div>
