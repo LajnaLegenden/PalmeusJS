@@ -1,0 +1,18 @@
+{{!< default}}
+{{#contentFor 'style'}}
+<link rel="stylesheet" href="./public/css/team.css">
+{{/contentFor}}
+<main class="container">
+    <h1>{{{team.name}}}</h1>
+    <h4>{{{team.description}}}</h4>
+    <div class="dashboard">
+        <div class="nextEvent"></div>
+        <div class="playerList"></div>
+        <div class="invitePlayers">
+            <form action="/teams/{{{team.id}}}/invite">
+                <button type="submit" class="btn btn-primary">Click to invite players</button>
+            </form>
+        </div>
+        <div class="eloInfo"></div>
+    </div>
+</main>

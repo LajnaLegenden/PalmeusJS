@@ -1,0 +1,116 @@
+{{!< default}}
+
+<main class="container">
+    <h1>Your teams</h1>
+
+    <form method="POST" action="/teams/createTeam">
+
+        <div class="form-group">
+            <label for="nameOfEvent">Name on event</label>
+            <input type="text" class="form-control" name="nameOfEvent" id="nameOfEvent" placeholder="Name on event"
+                required>
+
+
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" name="description" class="form-control" id="description"
+                placeholder="Small desciprption about the event" required>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="location">Location</label>
+                <input type="text" name="location" class="form-control" id="location" placeholder="Kockums Fritid"
+                    required>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="maxplayers">Max players per event</label>
+                <input type="number" name="maxplayers" class="form-control" id="maxplayers" placeholder="20"
+                    aria-describedby="maxHelp" required>
+                <small id="maxHelp" class="form-text text-muted">Excluding goalies</small>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="pricePer">Price per event</label>
+                <input type="text" name="pricePer" class="form-control" id="pricePer" placeholder="60 SEK">
+                <small id="maxHelp" class="form-text text-muted">Leave empty for none</small>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="pricePerSeason">Price for entire season</label>
+                <input type="text" name="pricePerSeason" class="form-control" id="pricePerSeason" placeholder="600 SEK"
+                    aria-describedby="maxHelp">
+                <small id="maxHelp" class="form-text text-muted">Leave empty for none</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="inputState">Time</label>
+                <select id="inputState" name="time" class="form-control">
+                    <option value="00:00">00.00</option>
+                    <option value="00:30">00.30</option>
+                    <option value="01:00">01.00</option>
+                    <option value="01:30">01.30</option>
+                    <option value="02:00">02.00</option>
+                    <option value="02:30">02.30</option>
+                    <option value="03:00">03.00</option>
+                    <option value="03:30">03.30</option>
+                    <option value="04:00">04.00</option>
+                    <option value="04:30">04.30</option>
+                    <option value="05:00">05.00</option>
+                    <option value="05:30">05.30</option>
+                    <option value="06:00">06.00</option>
+                    <option value="06:30">06.30</option>
+                    <option value="07:00">07.00</option>
+                    <option value="07:30">07.30</option>
+                    <option value="08:00">08.00</option>
+                    <option value="08:30">08.30</option>
+                    <option value="09:00">09.00</option>
+                    <option value="09:30">09.30</option>
+                    <option value="10:00">10.00</option>
+                    <option value="10:30">10.30</option>
+                    <option value="11:00">11.00</option>
+                    <option value="11:30">11.30</option>
+                    <option value="12:00">12.00</option>
+                    <option value="12:30">12.30</option>
+                    <option value="13:00">13.00</option>
+                    <option value="13:30">13.30</option>
+                    <option value="14:00">14.00</option>
+                    <option value="14:30">14.30</option>
+                    <option value="15:00">15.00</option>
+                    <option value="15:30">15.30</option>
+                    <option value="16:00">16.00</option>
+                    <option value="16:30">16.30</option>
+                    <option value="17:00">17.00</option>
+                    <option value="17:30">17.30</option>
+                    <option value="18:00" selected>18.00</option>
+                    <option value="18:30">18.30</option>
+                    <option value="19:00">19.00</option>
+                    <option value="19:30">19.30</option>
+                    <option value="20:00">20.00</option>
+                    <option value="20:30">20.30</option>
+                    <option value="21:00">21.00</option>
+                    <option value="21:30">21.30</option>
+                    <option value="22:00">22.00</option>
+                    <option value="22:30">22.30</option>
+                    <option value="23:00">23.00</option>
+                    <option value="23:30">23.30</option>
+                </select>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="inputState">Time</label>
+                <select id="inputState" name="day" class="form-control" required>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create team</button>
+    </form>
+</main>
