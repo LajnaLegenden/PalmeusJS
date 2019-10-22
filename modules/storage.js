@@ -6,6 +6,7 @@ const createNewUser = `INSERT INTO users (firstName,lastName,username,email,pass
 const verifyUsername = `SELECT * FROM users WHERE username = ?`;
 const getUserByID = `SELECT * FROM users WHERE id = ?`;
 const getManagedTeamsByUsername = `SELECT * FROM teams WHERE creator = ?`;
+const getTeamsByUsername = `SELECT * FROM members WHERE username = ?`;
 
 //Team
 const addTeam = `INSERT INTO teams (name,id,description,location,time,dayOfTheWeek,creator,priceSingle,priceWhole,maxplayers) VALUES (?,?,?,?,?,?,?,?,?,?)`
@@ -15,6 +16,7 @@ const getTeamByID = `SELECT * FROM teams WHERE id = ?`;
 const isRealUsername = `SELECT username FROM users WHERE username = ?`;
 const isTokenValid = `SELECT * FROM invite WHERE id = ?`;
 const addEmailInvite = `INSERT INTO invite (toEmail,elo,position,id,fromUser,team,typeOfInvite) VALUES (?,?,?,?,?,?,?)`
+const joinTeam = `INSERT INTO members (username,teamID,elo,priority,attendance) VALUES (?,?,?,?,?)`
 
 
 class Database {
@@ -42,6 +44,7 @@ class Database {
         let id = getNewId();
         await mysql.queryP(addTeam, [nameOfEvent, id, description, location, timeOfDay, dayOfWeek, admin, priceSingle, priceMultiple, maxplayers]);
         await mysql.queryP(addAdmin, [id, admin, admin]);
+        await mysql.queryP(joinTeam, [admin, id, 0, true, 0]);
         return "OK";
     }
     async verifyID(id) {
@@ -50,6 +53,10 @@ class Database {
 
     async getManagedTeamsByUsername(username) {
         return mysql.queryP(getManagedTeamsByUsername, username);
+    }
+
+    async getTeamsByUsername(username) {
+        return mysql.queryP(getTeamsByUsername, username);
     }
 
     async verifyAdmin(id, username) {

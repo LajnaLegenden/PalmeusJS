@@ -3,14 +3,12 @@ require('dotenv').config({ path: './env' });
 const express = require('express');
 const app = express();
 const router = require('./modules/router.js');
-const hbs = require('express-hbs');
 const cookieSession = require("cookie-session");
 const https = require('https');
 const bodyParser = require('body-parser');
 const http = require('http');
-
-
-
+const hbs = require('hbs');
+const fs = require('fs');
 
 const port = process.env.PORT;
 
@@ -20,11 +18,10 @@ let server = http.createServer(app);
 app.use('/public', express.static('public'));
 
 //Handlebars setup
-app.engine('hbs', hbs.express4());
 app.set('view engine', 'hbs');
 app.set('views', __dirname + '/views');
 
-
+hbs.registerPartials(__dirname + '/views/partials');
 
 //Validator
 app.use(express.json());

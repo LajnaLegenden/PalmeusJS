@@ -1,5 +1,5 @@
 const Storage = require('./storage');
-const email = require('./email');
+const gmail = require('./email');
 
 const validator = require('express-validator');
 
@@ -98,12 +98,12 @@ module.exports = (app) => {
     //Teams
     app.get('/teams', auth, async (req, res) => {
         let managedTeams = await Storage.getManagedTeamsByUsername(req.session.user);
-        let joinedTeams = null;//await Storage.getTeamsByUsername(req.session.user);
+        let joinedTeams = await Storage.getTeamsByUsername(req.session.user);
         let noTeam = true
-        if (managedTeams != "" || joinedTeams != null) {
+        if (managedTeams != "" || joinedTeams != "") {
             noTeam = false;
         }
-        res.render('teams', { title: 'Your teams', loggedIn: req.session.user, managedTeams, managedTeams, noTeam });
+        res.render('teams', { title: 'Your teams', loggedIn: req.session.user, managedTeams, joinedTeams, noTeam });
     });
 
     //Create Team
@@ -195,8 +195,8 @@ module.exports = (app) => {
                 inviteByEmail(toUser.email)
             }
             async function inviteByEmail(email) {
-
                 let invite = await Storage.inviteByEmail(email, req.body.elo, req.body.pos, req.session.user, id);
+                gmail(email);
             }
             async function err(err) {
                 let error = {}
