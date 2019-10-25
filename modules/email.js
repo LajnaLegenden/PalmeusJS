@@ -1,7 +1,11 @@
-
+const Storage = require('./storage');
 
 class Mail {
-    send(email, subject, type, ) {
+    constructor(hbs) {
+        this.hbs = hbs;
+    }
+
+    send(email, subject, body) {
         let send = require('gmail-send')({
             user: 'palmeusjs@gmail.com',
             pass: process.env.GMAILPASS,
@@ -15,9 +19,11 @@ class Mail {
             console.log(res);
         });
     }
-}
 
-function getHtml(type) {
+    async invite(inviteID, teamId, email, fUser) {
+        let fromUser = await Storage.getUserByUsername(fUser);
+        //Get html
+    }
 }
 
 

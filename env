@@ -1,0 +1,7 @@
+DBUSER=ag_code
+DBPASS=ag_userPass60
+DBNAME=PJS_DEVELOP
+DBADDR=85.24.194.27
+PORT=3000
+SECRET="asdhasgdjhagsdjhagsd"
+GMAILPASS="vikingsteam00"

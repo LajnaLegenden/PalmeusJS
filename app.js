@@ -32,7 +32,7 @@ app.use(cookieSession({
 }));
 app.use(bodyParser.urlencoded({ extended: true }));
 //Use router
-router(app);
+router(app, hbs);
 
 
 //Listen

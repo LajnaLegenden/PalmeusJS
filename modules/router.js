@@ -2,8 +2,9 @@ const Storage = require('./storage');
 const gmail = require('./email');
 
 const validator = require('express-validator');
+const fs = require('fs');
 
-module.exports = (app) => {
+module.exports = (app, hbs) => {
     //Index page
     app.get('/', async (req, res) => {
         let loggedIn = req.session.user == undefined ? false : req.session.user;
@@ -27,6 +28,7 @@ module.exports = (app) => {
             req.session.user = username;
             if (req.session.returnUrl != undefined) {
                 let url = req.session.returnUrl;
+                console.log(url);
                 req.session.returnUrl = undefined;
                 res.redirect(url);
             } else {
@@ -92,7 +94,16 @@ module.exports = (app) => {
 
 
     app.get('/mail', (req, res) => {
-        email('00jansson@gmail.com', 'test', '<h1>HEJSAN</h1>');
+
+        const source = fs.readFileSync("views/email/invite.hbs", "utf8");
+        const template = hbs.handlebars.compile(source);
+
+        const data = {
+            team: { name: 'Test', id: "asdadasdasddasasd" }
+        };
+        const html = template(data);
+
+        res.send(html);
     })
 
     //Teams
@@ -111,7 +122,7 @@ module.exports = (app) => {
         res.render('createTeam', { title: 'Create a team' });
     });
 
-    app.post('/teams/createTeam', validate, (req, res) => {
+    app.post('/teams/createTeam', auth, validate, (req, res) => {
         console.log(req.body);
         let a = req.body;
         let pricePer = parseInt(a.pricePer) || 0;
@@ -121,11 +132,13 @@ module.exports = (app) => {
         res.redirect('/teams')
     });
 
-    app.get('/teams/:id', async (req, res) => {
+    app.get('/teams/:id', auth, async (req, res) => {
         let id = req.params.id;
         let admin = await Storage.verifyAdmin(id, req.session.user);
         if (!admin.length) {
+            console.log(admin);
             res.redirect('/');
+
         }
         else {
             let loggedIn = req.session.user;
@@ -136,7 +149,7 @@ module.exports = (app) => {
 
     });
 
-    app.get('/teams/:id/invite', async (req, res) => {
+    app.get('/teams/:id/invite', auth, async (req, res) => {
         let id = req.params.id;
         let admin = await Storage.verifyAdmin(id, req.session.user);
         if (!admin.length) {
@@ -157,8 +170,6 @@ module.exports = (app) => {
         }
         else {
             let userOrEmail = req.body.userOrEmail;
-            let pos = req.body.pos;
-            let elo = parseInt(req.body.elo);
             let fromUser = req.session.user;
             fromUser = Storage.getUserByUsername(fromUser);
             let inviteBy = "";
@@ -195,8 +206,10 @@ module.exports = (app) => {
                 inviteByEmail(toUser.email)
             }
             async function inviteByEmail(email) {
-                let invite = await Storage.inviteByEmail(email, req.body.elo, req.body.pos, req.session.user, id);
-                gmail(email);
+                let token = await Storage.inviteByEmail(email, req.body.elo, req.body.pos, req.session.user, id);
+                let invite = await Storage.getInvite(token)
+                console.log(await invite);
+                gmail.invite(token, id, email, req.session.user);
             }
             async function err(err) {
                 let error = {}
@@ -214,7 +227,8 @@ module.exports = (app) => {
 function auth(req, res, next) {
     if (!req.session.user) {
         req.session.returnUrl = req.url;
-        res.redirect('/signin')
+        console.log(req.session.returnUrl);
+        res.redirect('/signin');
     } else {
         next();
     }

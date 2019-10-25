@@ -17,7 +17,7 @@ const isRealUsername = `SELECT username FROM users WHERE username = ?`;
 const isTokenValid = `SELECT * FROM invite WHERE id = ?`;
 const addEmailInvite = `INSERT INTO invite (toEmail,elo,position,id,fromUser,team,typeOfInvite) VALUES (?,?,?,?,?,?,?)`
 const joinTeam = `INSERT INTO members (username,teamID,elo,priority,attendance) VALUES (?,?,?,?,?)`
-
+const getInvite = `SELECT * FROM invite WHERE id = ?`;
 
 class Database {
     //User functions
@@ -74,9 +74,14 @@ class Database {
         let token = await getToken();
         console.log(email, elo, pos, from, token)
         let stmt = await mysql.queryP(addEmailInvite, [email, elo, pos, token, from, team, "EMAIL"]);
-        console.log(await stmt);
-        return stmt;
+        return token;
     }
+
+    async getInvite(id) {
+        console.log(id);
+        return await mysql.queryP(getInvite, id);
+    }
+
     async isTokenValid(token) {
         return await !mysql.queryP(isTokenValid, token);
     }

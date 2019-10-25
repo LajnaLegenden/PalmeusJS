@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .center {
+            margin: auto;
+        }
+
+        .container {
+            width: 80vh;
+            margin: auto
+        }
+
+        .btn {
+            display: inline-block;
+            font-weight: 400;
+            color: #212529;
+            text-align: center;
+            vertical-align: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-color: transparent;
+            border: 1px solid transparent;
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: .25rem;
+            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <div class="center">
+            <h1 style="text-align: center;">You have been invited {{team.name}}</h1>
+            <p>You have been invited to join a team on Palmeus JS. Click the button below to join</p>
+            <!-- FIX THIS LINK WHEN HAVE REAL DOMAIN -->
+            <button class="btn btn-primary">Join Team</button>
+            <br> <small>If the link does not work, please click paste this link in your browser</small><br>
+            <a
+                href="localhost:3000/teams/{{team.id}}/acceptInvite"><small>localhost:3000/teams/{{team.id}}/acceptInvite</small></a>
+
+        </div>
+
+    </main>
+</body>
+
+</html>
