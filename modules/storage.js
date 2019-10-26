@@ -15,9 +15,12 @@ const verifyAdmin = `SELECT * FROM admin WHERE username = ? AND teamID = ?`;
 const getTeamByID = `SELECT * FROM teams WHERE id = ?`;
 const isRealUsername = `SELECT username FROM users WHERE username = ?`;
 const isTokenValid = `SELECT * FROM invite WHERE id = ?`;
-const addEmailInvite = `INSERT INTO invite (toEmail,elo,position,id,fromUser,team,typeOfInvite) VALUES (?,?,?,?,?,?,?)`
+const addEmailInvite = `INSERT INTO invite (toEmailOrUsername,elo,position,id,fromUser,team,typeOfInvite) VALUES (?,?,?,?,?,?,?)`
+const addUsernameInvite = `INSERT INTO invite (toEmailOrUsername,elo,position,id,fromUser,team,typeOfInvite) VALUES (?,?,?,?,?,?,?)`
 const joinTeam = `INSERT INTO members (username,teamID,elo,priority,attendance) VALUES (?,?,?,?,?)`
 const getInvite = `SELECT * FROM invite WHERE id = ?`;
+const getTeamInvitesForUser = `SELECT * FROM invite where toEmailOrUsername = ? and typeOfInvite = "USERNAME"`
+const removeInvite = `DELETE FROM invite WHERE id = ?`;
 
 class Database {
     //User functions
@@ -44,9 +47,14 @@ class Database {
         let id = getNewId();
         await mysql.queryP(addTeam, [nameOfEvent, id, description, location, timeOfDay, dayOfWeek, admin, priceSingle, priceMultiple, maxplayers]);
         await mysql.queryP(addAdmin, [id, admin, admin]);
-        await mysql.queryP(joinTeam, [admin, id, 0, true, 0]);
+        this.joinTeam(admin, id, 1000, true);
         return "OK";
     }
+
+    async joinTeam(user, teamId, elo, priority) {
+        await mysql.queryP(joinTeam, [user, teamId, elo, priority, 0]);
+    }
+
     async verifyID(id) {
         return !mysql.queryP(getUserByID, id) && !mysql.queryP(getTeamByID, id);
     }
@@ -70,15 +78,38 @@ class Database {
     async isRealUsername(username) {
         return (await mysql.queryP(isRealUsername, username)).length ? true : false;
     }
+    async inviteByUsername(username, elo, pos, from, team, token) {
+        let stmt = await mysql.queryP(addUsernameInvite, [username, elo, pos, token, from, team, "USERNAME"]);
+    }
+
     async inviteByEmail(email, elo, pos, from, team) {
         let token = await getToken();
-        console.log(email, elo, pos, from, token)
-        let stmt = await mysql.queryP(addEmailInvite, [email, elo, pos, token, from, team, "EMAIL"]);
+        await mysql.queryP(addEmailInvite, [email, elo, pos, token, from, team, "EMAIL"]);
         return token;
     }
 
+    async getTeamInvitesForUser(username) {
+        let teams = await mysql.queryP(getTeamInvitesForUser, username);
+        for (let i in teams) {
+            let teamData = (await mysql.queryP(getTeamByID, teams[i].team))[0]
+            teams[i].teamData = teamData;
+        }
+        return teams;
+    }
+
+    async respondToInvite(id, answer, user) {
+        let invite = (await this.getInvite(id))[0];
+        console.log(invite, answer);
+        if (answer) {
+            this.joinTeam(user, invite.team, invite.elo, false);
+            await mysql.queryP(removeInvite, id);
+        } else {
+            await mysql.queryP(removeInvite, id);
+
+        }
+    }
+
     async getInvite(id) {
-        console.log(id);
         return await mysql.queryP(getInvite, id);
     }
 

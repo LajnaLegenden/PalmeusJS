@@ -1,4 +1,5 @@
 const Storage = require('./storage');
+const fs = require('fs');
 
 class Mail {
     constructor(hbs) {
@@ -12,20 +13,26 @@ class Mail {
             to: email,
             subject: subject
         });
-
-
         send({ html: body }, (err, res, fullRes) => {
-            if (err) console.error(err);
-            console.log(res);
+            if (err) return "Error sending mail to reciptiant";
+            return "Invite sucsess"
         });
     }
 
     async invite(inviteID, teamId, email, fUser) {
         let fromUser = await Storage.getUserByUsername(fUser);
-        //Get html
+        let team = await Storage.getTeamById(teamId);
+
+        const source = fs.readFileSync("views/email/invite.hbs", "utf8");
+        const template = this.hbs.compile(source);
+
+        const data = {
+            team, fromUser, inviteID
+        };
+        const html = template(data);
+
+        this.send(email, `Invite to join ${team.name}`, html);
     }
 }
 
-
-let mail = new Mail();
-module.exports = mail;
+module.exports = Mail;

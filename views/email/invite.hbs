@@ -56,12 +56,14 @@
     <main class="container">
         <div class="center">
             <h1 style="text-align: center;">You have been invited {{team.name}}</h1>
-            <p>You have been invited to join a team on Palmeus JS. Click the button below to join</p>
+            <p>You have been invited to join a team on Palmeus JS by {{fromUser.firstName}} {{fromUser.lastName}}. Click
+                the button below to join</p>
             <!-- FIX THIS LINK WHEN HAVE REAL DOMAIN -->
-            <button class="btn btn-primary">Join Team</button>
-            <br> <small>If the link does not work, please click paste this link in your browser</small><br>
+            <a class="btn btn-primary">Join Team</a >
+            <br>
+            <p>If the link does not work, please click paste this link in your browser</p><br>
             <a
-                href="localhost:3000/teams/{{team.id}}/acceptInvite"><small>localhost:3000/teams/{{team.id}}/acceptInvite</small></a>
+                href="localhost:3000/accpetInvite/{{inviteID}}"><small>localhost:3000/acceptInvite/{{inviteID}}</small></a>
 
         </div>
 

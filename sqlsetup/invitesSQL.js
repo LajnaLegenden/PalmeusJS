@@ -7,7 +7,7 @@ async function doStuff() {
         id varchar(255),
         typeOfInvite varchar(63),
         fromUser varchar(255),
-        toEmail varchar(63),
+        toEmailOrUsername varchar(63),
         position varchar(15),
         elo varchar(15),
         team varchar(127)

@@ -11,9 +11,10 @@
                 <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#joinedTeams" role="tab"
                     aria-controls="nav-profile" aria-selected="false">Joined Teams</a>
                 {{/if}}
-                {{#if managedTeams}}
+                {{#if invites}}
                 <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#invites" role="tab"
-                    aria-controls="nav-contact" aria-selected="false">Invites</a>
+                    aria-controls="nav-contact" aria-selected="false">Invites <span
+                        class="badge badge-light">{{noOfInvites}}</span></a>
                 {{/if}}
             </div>
         </nav>
@@ -84,6 +85,34 @@
                 </table>
 
                 {{/if}}</div>
-            <div class="tab-pane fade" id="invites" role="tabpanel" aria-labelledby="nav-contact-tab">invites</div>
+            <div class="tab-pane fade" id="invites" role="tabpanel" aria-labelledby="nav-contact-tab">{{#if invites}}
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th scope="col">From</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Day</th>
+                            <th scope="col">Team ID</th>
+                            <th scope="col">Invite ID</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each invites}}
+                        <tr>
+                            <td>{{this.fromUser}}</td>
+                            <td>{{this.teamData.name}}</td>
+                            <td>{{this.teamData.time}}</td>
+                            <td>{{this.teamData.dayOfTheWeek}}</td>
+                            <td>{{this.team}}</td>
+                            <td>{{this.id}}</td>
+                            <td>accept decline</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+                {{/if}}
+            </div>
         </div>
     </main>

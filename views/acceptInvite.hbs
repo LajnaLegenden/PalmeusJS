@@ -1,0 +1,21 @@
+<main class="container">
+    <div class="center">
+        <h1 style="text-align: center;">You have been invited {{team.name}}</h1>
+        <p>You have been invited to join a team on Palmeus JS by {{fromUser.firstName}} {{fromUser.lastName}}. Click
+            the button below to join</p>
+        <!-- FIX THIS LINK WHEN HAVE REAL DOMAIN -->
+        <div class="flex">
+            <form action="/acceptInvite/{{invite.id}}" method="post"><button class="btn btn-success" value="true"
+                    name="yesorno" type="submit">Accept Team
+                    Invite</button>
+            </form>
+            <form action="/acceptInvite/{{invite.id}}" method="post"><button name="yesorno" value="false"
+                    class="btn btn-danger" type="submit">Decline
+                    Team
+                    Invite</button>
+            </form>
+        </div>
+
+    </div>
+
+</main>

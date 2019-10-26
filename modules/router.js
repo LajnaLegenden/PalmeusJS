@@ -1,10 +1,12 @@
 const Storage = require('./storage');
-const gmail = require('./email');
+const Mail = require('./Mail');
 
 const validator = require('express-validator');
 const fs = require('fs');
 
 module.exports = (app, hbs) => {
+
+    let mail = new Mail(hbs);
     //Index page
     app.get('/', async (req, res) => {
         let loggedIn = req.session.user == undefined ? false : req.session.user;
@@ -95,26 +97,20 @@ module.exports = (app, hbs) => {
 
     app.get('/mail', (req, res) => {
 
-        const source = fs.readFileSync("views/email/invite.hbs", "utf8");
-        const template = hbs.handlebars.compile(source);
-
-        const data = {
-            team: { name: 'Test', id: "asdadasdasddasasd" }
-        };
-        const html = template(data);
-
-        res.send(html);
+        res.render('email/invite');
     })
 
     //Teams
     app.get('/teams', auth, async (req, res) => {
         let managedTeams = await Storage.getManagedTeamsByUsername(req.session.user);
         let joinedTeams = await Storage.getTeamsByUsername(req.session.user);
+        let invites = await Storage.getTeamInvitesForUser(req.session.user);
+        let noOfInvites = invites.length;
         let noTeam = true
         if (managedTeams != "" || joinedTeams != "") {
             noTeam = false;
         }
-        res.render('teams', { title: 'Your teams', loggedIn: req.session.user, managedTeams, joinedTeams, noTeam });
+        res.render('teams', { title: 'Your teams', loggedIn: req.session.user, noOfInvites, managedTeams, joinedTeams, invites, noTeam });
     });
 
     //Create Team
@@ -123,7 +119,6 @@ module.exports = (app, hbs) => {
     });
 
     app.post('/teams/createTeam', auth, validate, (req, res) => {
-        console.log(req.body);
         let a = req.body;
         let pricePer = parseInt(a.pricePer) || 0;
         let pricePerSeason = parseInt(a.pricePerSeason) || 0;
@@ -136,14 +131,12 @@ module.exports = (app, hbs) => {
         let id = req.params.id;
         let admin = await Storage.verifyAdmin(id, req.session.user);
         if (!admin.length) {
-            console.log(admin);
             res.redirect('/');
 
         }
         else {
             let loggedIn = req.session.user;
             let team = await Storage.getTeamById(id);
-            console.log(team);
             res.render('teamControl', { title: team.name, loggedIn, team: team })
         }
 
@@ -180,7 +173,7 @@ module.exports = (app, hbs) => {
             }
             switch (inviteBy) {
                 case "Email":
-                    inviteByEmail(userOrEmail);
+                    await inviteByEmail(userOrEmail);
                     //Create invite token
                     //Send Email
                     //Show res to admin
@@ -201,15 +194,15 @@ module.exports = (app, hbs) => {
                 default:
                     throw new Error('Something has gone terribly wrong');
             }
-
-            function sendInviteToUsername(toUser) {
-                inviteByEmail(toUser.email)
+            async function sendInviteToUsername(toUser) {
+                Storage.inviteByEmail(toUser.email, req.body.elo, req.body.pos, req.session.user, id).then(async (inviteID) => {
+                    mail.invite(inviteID, id, toUser.email, req.session.user);
+                    await Storage.inviteByUsername(userOrEmail, req.body.elo, req.body.pos, req.session.user, id, inviteID);
+                });
+                // 
             }
             async function inviteByEmail(email) {
-                let token = await Storage.inviteByEmail(email, req.body.elo, req.body.pos, req.session.user, id);
-                let invite = await Storage.getInvite(token)
-                console.log(await invite);
-                gmail.invite(token, id, email, req.session.user);
+                Storage.inviteByEmail(email, req.body.elo, req.body.pos, req.session.user, id)
             }
             async function err(err) {
                 let error = {}
@@ -222,7 +215,23 @@ module.exports = (app, hbs) => {
         }
 
     });
-}
+
+    app.get('/acceptInvite/:id', auth, async (req, res) => {
+        let inviteID = req.params.id;
+        let invite = (await Storage.getInvite(inviteID))[0];
+        let team = await Storage.getTeamById(invite.team);
+        let fromUser = await Storage.getUserByUsername(invite.fromUser);
+
+        res.render('acceptInvite', { invite, inviteID, team, fromUser, loggedin: req.session.user })
+    });
+
+    app.post('/acceptInvite/:id', auth, async (req, res) => {
+        Storage.respondToInvite(req.params.id, req.body.yesorno, req.session.user);
+        res.redirect('/teams');
+    });
+
+};
+
 
 function auth(req, res, next) {
     if (!req.session.user) {
