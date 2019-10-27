@@ -127,7 +127,7 @@ module.exports = (app, hbs) => {
         res.redirect('/teams')
     });
 
-    app.get('/teams/:id', auth, async (req, res) => {
+    app.get('/teams/:id/manage', auth, async (req, res) => {
         let id = req.params.id;
         let admin = await Storage.verifyAdmin(id, req.session.user);
         if (!admin.length) {
@@ -137,7 +137,12 @@ module.exports = (app, hbs) => {
         else {
             let loggedIn = req.session.user;
             let team = await Storage.getTeamById(id);
-            res.render('teamControl', { title: team.name, loggedIn, team: team })
+            let members = await Storage.getPlayers(id);
+            for (let i in members) {
+                let data = await Storage.getUserByUsername(members[i].username);
+                members[i].playerData = data;
+            }
+            res.render('teamControl', { title: team.name, loggedIn, team: team, members })
         }
 
     });
@@ -173,10 +178,11 @@ module.exports = (app, hbs) => {
             }
             switch (inviteBy) {
                 case "Email":
+                    let user = await Storage.getUserByEmail(userOrEmail);
+                    if (user) {
+                        sendInviteToUsername(user.username);
+                    }
                     await inviteByEmail(userOrEmail);
-                    //Create invite token
-                    //Send Email
-                    //Show res to admin
                     break;
                 case "Username":
                     //Is real username?

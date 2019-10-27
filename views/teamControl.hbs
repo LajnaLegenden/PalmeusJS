@@ -3,7 +3,28 @@
     <h4>{{{team.description}}}</h4>
     <div class="dashboard">
         <div class="nextEvent"></div>
-        <div class="playerList"></div>
+        <div class="playerList">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Position</th>
+                        <th scope="col">Attandance</th>
+                        <th scope="col">Ranking</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each members}}
+                    <tr>
+                        <th scope="row">{{this.playerData.firstName}} {{this.playerData.lastName}}</th>
+                        <td>{{this.position}}</td>
+                        <td>{{this.attendance}}</td>
+                        <td>{{this.elo}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
         <div class="invitePlayers">
             <form action="/teams/{{{team.id}}}/invite">
                 <button type="submit" class="btn btn-primary">Click to invite players</button>

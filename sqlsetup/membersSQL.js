@@ -8,7 +8,8 @@ async function doStuff() {
         teamID varchar(255),
         elo varchar(255),
         priority boolean, 
-        attendance integer
+        attendance integer,
+        position varchar(15)
     );`, (error, results, fields) => {
         if (error) {
             console.log("error creating table topics ", error);

@@ -39,14 +39,13 @@
                     <tbody>
                         {{#each managedTeams}}
                         <tr>
-                            <td><a href="/teams/{{this.id}}">{{this.name}}</a></td>
+                            <td><a href="/teams/{{this.id}}/manage">{{this.name}}</a></td>
                             <td>{{this.description}}</td>
                             <td>{{this.time}}</td>
                             <td>{{this.dayOfTheWeek}}</td>
-
                             <td>25/96</td>
                             <td>{{this.id}}</td>
-                            <td>asdasda</td>
+                            <td>ADMIN</td>
                         </tr>
                         {{/each}}
                     </tbody>
@@ -78,7 +77,7 @@
 
                             <td>25/96</td>
                             <td>{{this.id}}</td>
-                            <td>asdasda</td>
+                            <td><button class="btn btn-dark">GOING</button></td>
                         </tr>
                         {{/each}}
                     </tbody>
@@ -102,12 +101,23 @@
                         {{#each invites}}
                         <tr>
                             <td>{{this.fromUser}}</td>
-                            <td>{{this.teamData.name}}</td>
+                            <td>{{this.teamData.name}}</td></div>
                             <td>{{this.teamData.time}}</td>
                             <td>{{this.teamData.dayOfTheWeek}}</td>
                             <td>{{this.team}}</td>
                             <td>{{this.id}}</td>
-                            <td>accept decline</td>
+                            <td>
+                                <div class="inline">
+                                    <form action="/acceptInvite/{{this.id}}" method="post"><button
+                                            class="btn btn-outline-primary btn-sm" value="true" name="yesorno"
+                                            type="submit"><i class="fas fa-check"></i></button>
+                                    </form>
+                                    <form action="/acceptInvite/{{this.id}}" method="post"><button name="yesorno"
+                                            value="false" class="btn btn-outline-danger btn-sm" type="submit"><i
+                                                class="fas fa-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                         {{/each}}
                     </tbody>

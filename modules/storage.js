@@ -1,3 +1,4 @@
+
 const mysql = require("./mysql");
 const bcrypt = require('bcryptjs');
 
@@ -17,10 +18,12 @@ const isRealUsername = `SELECT username FROM users WHERE username = ?`;
 const isTokenValid = `SELECT * FROM invite WHERE id = ?`;
 const addEmailInvite = `INSERT INTO invite (toEmailOrUsername,elo,position,id,fromUser,team,typeOfInvite) VALUES (?,?,?,?,?,?,?)`
 const addUsernameInvite = `INSERT INTO invite (toEmailOrUsername,elo,position,id,fromUser,team,typeOfInvite) VALUES (?,?,?,?,?,?,?)`
-const joinTeam = `INSERT INTO members (username,teamID,elo,priority,attendance) VALUES (?,?,?,?,?)`
+const joinTeam = `INSERT INTO members (username,teamID,elo,priority,attendance,position) VALUES (?,?,?,?,?,?)`
 const getInvite = `SELECT * FROM invite WHERE id = ?`;
 const getTeamInvitesForUser = `SELECT * FROM invite where toEmailOrUsername = ? and typeOfInvite = "USERNAME"`
 const removeInvite = `DELETE FROM invite WHERE id = ?`;
+const getPlayers = `SELECT * FROM members where teamID = ?`
+const getUserByEmail = `SELECT * FROM users WHERE email = ?`;
 
 class Database {
     //User functions
@@ -47,12 +50,12 @@ class Database {
         let id = getNewId();
         await mysql.queryP(addTeam, [nameOfEvent, id, description, location, timeOfDay, dayOfWeek, admin, priceSingle, priceMultiple, maxplayers]);
         await mysql.queryP(addAdmin, [id, admin, admin]);
-        this.joinTeam(admin, id, 1000, true);
+        this.joinTeam(admin, id, 1000, true, "FW");
         return "OK";
     }
 
-    async joinTeam(user, teamId, elo, priority) {
-        await mysql.queryP(joinTeam, [user, teamId, elo, priority, 0]);
+    async joinTeam(user, teamId, elo, priority, pos) {
+        await mysql.queryP(joinTeam, [user, teamId, elo, priority, 0, pos]);
     }
 
     async verifyID(id) {
@@ -64,7 +67,13 @@ class Database {
     }
 
     async getTeamsByUsername(username) {
-        return mysql.queryP(getTeamsByUsername, username);
+        let teams = await mysql.queryP(getTeamsByUsername, username);
+        let out = [];
+        for (let i in teams) {
+            let team = await this.getTeamById(teams[i].teamID);
+            out.push(team);
+        }
+        return out;
     }
 
     async verifyAdmin(id, username) {
@@ -100,15 +109,20 @@ class Database {
     async respondToInvite(id, answer, user) {
         let invite = (await this.getInvite(id))[0];
         console.log(invite, answer);
-        if (answer) {
-            this.joinTeam(user, invite.team, invite.elo, false);
+        if (answer.length == 4) {
+            this.joinTeam(user, invite.team, invite.elo, false, invite.position);
             await mysql.queryP(removeInvite, id);
         } else {
             await mysql.queryP(removeInvite, id);
-
         }
     }
+    async getUserByEmail(email) {
+        return await mysql.queryP(getUserByEmail, email);
+    }
 
+    async getPlayers(id) {
+        return await mysql.queryP(getPlayers, id);
+    }
     async getInvite(id) {
         return await mysql.queryP(getInvite, id);
     }
