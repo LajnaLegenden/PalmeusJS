@@ -24,11 +24,18 @@ const getTeamInvitesForUser = `SELECT * FROM invite where toEmailOrUsername = ? 
 const removeInvite = `DELETE FROM invite WHERE id = ?`;
 const getPlayers = `SELECT * FROM members where teamID = ?`
 const getUserByEmail = `SELECT * FROM users WHERE email = ?`;
+const addToSquad = `INSERT INTO squad (playerUsername,team,teamID) VALUES (?,?,?)`;
+const getSquadForTeam = `SELECT * FROM squad WHERE teamID = ?`;
+const getTeamDataForPlayer = `SELECT * FROM members where teamID = ? AND username = ?`;
+const deleteSquad = `DELETE FROM squad WHERE teamID = ?`;
+
+
 
 class Database {
     //User functions
     async getUserByUsername(username) {
         let res = await mysql.queryP(verifyUsername, username);
+
         return res[0];
     }
 
@@ -108,7 +115,6 @@ class Database {
 
     async respondToInvite(id, answer, user) {
         let invite = (await this.getInvite(id))[0];
-        console.log(invite, answer);
         if (answer.length == 4) {
             this.joinTeam(user, invite.team, invite.elo, false, invite.position);
             await mysql.queryP(removeInvite, id);
@@ -129,6 +135,37 @@ class Database {
 
     async isTokenValid(token) {
         return await !mysql.queryP(isTokenValid, token);
+    }
+
+    async saveTeam(teamID, teams) {
+        await mysql.queryP(deleteSquad, teamID);
+        let team1 = teams.team1;
+        let team2 = teams.team2;
+
+        addToDB(team1, 0);
+        addToDB(team2, 1);
+
+        function addToDB(team, teamNumber) {
+            for (let i in team) {
+                mysql.queryP(addToSquad, [team[i].username, teamNumber, teamID]);
+            }
+        }
+        return "OK";
+    }
+
+    async getSquadForTeam(teamID) {
+        let players = await mysql.queryP(getSquadForTeam, teamID);
+        for (let i in players) {
+            let info = await this.getTeamDataForPlayer(teamID, players[i].playerUsername);
+            let profile = await Storage.getUserByUsername(players[i].playerUsername);
+            players[i].info = info;
+            players[i].name = `${profile.firstName} ${profile.lastName}`
+        }
+        return players;
+    }
+
+    async getTeamDataForPlayer(teamid, username) {
+        return (await mysql.queryP(getTeamDataForPlayer, [teamid, username]))[0];
     }
 }
 

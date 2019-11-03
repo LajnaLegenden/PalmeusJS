@@ -26,10 +26,18 @@
             </table>
         </div>
         <div class="invitePlayers">
-            <form action="/teams/{{{team.id}}}/invite">
+            <form action="/team/{{{team.id}}}/invite">
                 <button type="submit" class="btn btn-primary">Click to invite players</button>
             </form>
         </div>
         <div class="eloInfo"></div>
+        <div class="getTeam">
+            <form action="/team/{{{team.id}}}/getTeam">
+                <button type="submit" class="btn btn-primary">Click to generate a team</button>
+            </form>
+            <form action="/team/{{{team.id}}}/showTeam">
+                <button type="submit" class="btn btn-primary">Click to show current teams</button>
+            </form>
+        </div>
     </div>
 </main>

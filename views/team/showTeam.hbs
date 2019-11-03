@@ -1,0 +1,47 @@
+<main class="container">
+    <h2>Teams</h2>
+    <div class="devider">
+
+        <div class="teamTable">
+            <table class="table table-borderless">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Recomended Pos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each team.team1}}
+                    <tr>
+                        <th scope="row">{{{@index}}}</th>
+                        <td>{{{this.name}}}</td>
+                        <td>{{{this.info.position}}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+        <div class="teamTable">
+            <table class="table table-borderless">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Recomended Pos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each team.team2}}
+                    <tr>
+                        <th scope="row">{{{@index}}}</th>
+                        <td>{{{this.name}}}</td>
+                        <td>{{{this.info.position}}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>

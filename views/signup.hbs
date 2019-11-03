@@ -9,33 +9,36 @@
         <form action="/signup" method="POST">
             <div class="form-group">
                 <label for="fName">First name</label>
-                <input type="text" name="fName" class="form-control" id="fName" placeholder="First Name" required>
+                <input type="text" name="fName" class="form-control" id="fName" placeholder="First Name"
+                    value="{{{data.fName}}}" required>
             </div>
             <div class="form-group">
                 <label for="lName">Last name</label>
-                <input type="text" name="lName" class="form-control" id="lName" placeholder="Last Name" required>
+                <input type="text" name="lName" class="form-control" value="{{{data.lName}}}" id="lName"
+                    placeholder="Last Name" required>
             </div>
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" name="username" class="form-control" id="username" placeholder="Username" required>
+                <input type="text" name="username" class="form-control" value="{{{data.username}}}" id="username"
+                    placeholder="Username" required>
             </div>
             <div class="form-group">
                 <label for="expleInputEmail1">Email address</label>
-                <input type="email" class="form-control" name="email" autocomplete="nickname" id="email"
-                    aria-describedby="emailHelp" placeholder="Enter email" required>
+                <input type="email" class="form-control" name="email" value="{{{data.email}}}" autocomplete="nickname"
+                    id="email" aria-describedby="emailHelp" placeholder="Enter email" required>
                 <small id="emailHelp" class="form-text text-muted">We'll namever share your email with anyoname
                     else.</small>
             </div>
             <div class="form-group">
                 <label for="password1">Password</label>
-                <input type="password" name="password1" class="form-control" autocomplete="namew-password"
-                    id="password1" placeholder="Password" required>
+                <input type="password" name="password1" value="{{{data.password1}}}" class="form-control"
+                    autocomplete="namew-password" id="password1" placeholder="Password" required>
                 <small id="passhelp" class="form-text text-muted">Make sure the passwords match</small>
             </div>
             <div class="form-group">
                 <label for="password2">Password</label>
-                <input type="password" name="password2" autocomplete="namew-password" class="form-control"
-                    id="password2" placeholder="Confirm your password" required>
+                <input type="password" name="password2" value="{{{data.password2}}}" autocomplete="namew-password"
+                    class="form-control" id="password2" placeholder="Confirm your password" required>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>

@@ -1,0 +1,44 @@
+<main class="container">
+    <h1>{{{team.name}}}</h1>
+    <h4>{{{team.description}}}</h4>
+    <div class="dashboard">
+        <div class="nextEvent"></div>
+        <div class="playerList">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Position</th>
+                        <th scope="col">Attandance</th>
+                        <th scope="col">Ranking</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each members}}
+                    <tr>
+                        <th scope="row">{{this.playerData.firstName}} {{this.playerData.lastName}}</th>
+                        <td>{{this.position}}</td>
+                        <td>{{this.attendance}}</td>
+                        <td>{{this.elo}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+        <div class="invitePlayers">
+            <form action="/team/{{{team.id}}}/invite">
+                <button type="submit" class="btn btn-primary">Click to invite players</button>
+            </form>
+        </div>
+        <div class="eloInfo"></div>
+        <div class="getTeam">
+            <form action="/team/{{{team.id}}}/getTeam">
+                <button type="submit" class="btn btn-primary">Click to generate a team</button>
+            </form>
+            <a href="/team/{{{team.id}}}/showTeam"><button type="submit" class="btn btn-primary">Click to show current
+                    teams</button></a>
+
+
+        </div>
+    </div>
+</main>

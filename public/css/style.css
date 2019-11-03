@@ -18,3 +18,12 @@
 .inline {
     height: 100%;
 }
+
+.devider {
+    display: flex;
+    justify-content: space-around;
+}
+
+.teamTable {
+    width: 40%;
+}

@@ -1,8 +1,8 @@
+const asyncHandler = require('express-async-handler')
+
 const Storage = require('./storage');
 const Mail = require('./Mail');
-
-const validator = require('express-validator');
-const fs = require('fs');
+const generateTeam = require('./generateTeam');
 
 module.exports = (app, hbs) => {
 
@@ -20,7 +20,7 @@ module.exports = (app, hbs) => {
         }
         res.render('signin', { title: 'Sign in' });
     });
-
+    //Signin
     app.post('/signin', validate, async (req, res) => {
         let err = {};
         let username = req.body.username.toLowerCase();
@@ -62,12 +62,12 @@ module.exports = (app, hbs) => {
         let email = req.body.email;
 
         username = username.charAt(0).toUpperCase() + username.slice(1);
-        let i = (await Storage.getUserByUsername(username)).length;
-        if (i != 0) {
+        let i = await Storage.getUserByUsername(username);
+        if (i) {
             err.message = "Username already exists";
             err.fields = ["username"];
             doStuff = false;
-        } else if (validateEmail(email)) {
+        } else if (!validateEmail(email)) {
             err.message = "Email must be valid";
             doStuff = false;
         } else if (password1 != password2) {
@@ -85,7 +85,8 @@ module.exports = (app, hbs) => {
                 req.session.user = username;
             res.redirect('/');
         } else {
-            res.render('signup', { title: 'Sign up', err });
+            console.log(err);
+            res.render('signup', { title: 'Sign up', err, data: req.body });
         }
     });
     // Sign out
@@ -93,12 +94,6 @@ module.exports = (app, hbs) => {
         req.session.user = undefined;
         res.redirect('/');
     });
-
-
-    app.get('/mail', (req, res) => {
-
-        res.render('email/invite');
-    })
 
     //Teams
     app.get('/teams', auth, async (req, res) => {
@@ -110,12 +105,12 @@ module.exports = (app, hbs) => {
         if (managedTeams != "" || joinedTeams != "") {
             noTeam = false;
         }
-        res.render('teams', { title: 'Your teams', loggedIn: req.session.user, noOfInvites, managedTeams, joinedTeams, invites, noTeam });
+        res.render('team/teams', { title: 'Your teams', loggedIn: req.session.user, noOfInvites, managedTeams, joinedTeams, invites, noTeam });
     });
 
     //Create Team
-    app.get('/teams/create', auth, (req, res) => {
-        res.render('createTeam', { title: 'Create a team' });
+    app.get('/team/create', auth, (req, res) => {
+        res.render('team/createTeam', { title: 'Create a team' });
     });
 
     app.post('/teams/createTeam', auth, validate, (req, res) => {
@@ -126,13 +121,12 @@ module.exports = (app, hbs) => {
         Storage.createTeam(a.nameOfEvent, a.description, a.location, a.time, a.day, req.session.user, pricePer, pricePerSeason, maxPlayers)
         res.redirect('/teams')
     });
-
-    app.get('/teams/:id/manage', auth, async (req, res) => {
+    //Team Manager
+    app.get('/team/:id/manage', auth, async (req, res) => {
         let id = req.params.id;
         let admin = await Storage.verifyAdmin(id, req.session.user);
         if (!admin.length) {
             res.redirect('/');
-
         }
         else {
             let loggedIn = req.session.user;
@@ -142,12 +136,11 @@ module.exports = (app, hbs) => {
                 let data = await Storage.getUserByUsername(members[i].username);
                 members[i].playerData = data;
             }
-            res.render('teamControl', { title: team.name, loggedIn, team: team, members })
+            res.render('team/teamControl', { title: team.name, loggedIn, team: team, members })
         }
-
     });
-
-    app.get('/teams/:id/invite', auth, async (req, res) => {
+    //Invite
+    app.get('/team/:id/invite', auth, async (req, res) => {
         let id = req.params.id;
         let admin = await Storage.verifyAdmin(id, req.session.user);
         if (!admin.length) {
@@ -156,11 +149,12 @@ module.exports = (app, hbs) => {
         else {
             let loggedIn = req.session.user;
             let team = await Storage.getTeamById(id);
-            res.render('teamInvite', { title: team.name, loggedIn, team: team })
+            res.render('team/teamInvite', { title: team.name, loggedIn, team: team })
         }
 
     });
-    app.post('/teams/:id/invite', async (req, res) => {
+
+    app.post('/team/:id/invite', async (req, res) => {
         let id = req.params.id;
         let admin = await Storage.verifyAdmin(id, req.session.user);
         if (!admin.length) {
@@ -215,13 +209,13 @@ module.exports = (app, hbs) => {
                 error.message = err;
                 let loggedIn = req.session.user;
                 let team = await Storage.getTeamById(id);
-                res.render('teamInvite', { title: team.name, loggedIn, team: team, error })
+                res.render('team/teamInvite', { title: team.name, loggedIn, team: team, error })
             }
             res.redirect('/teams/' + id + '/invite');
         }
 
     });
-
+    //Accpet invite
     app.get('/acceptInvite/:id', auth, async (req, res) => {
         let inviteID = req.params.id;
         let invite = (await Storage.getInvite(inviteID))[0];
@@ -236,6 +230,27 @@ module.exports = (app, hbs) => {
         res.redirect('/teams');
     });
 
+    //GetTeam
+    app.get('/team/:id/getTeam', teamAuth, async (req, res) => {
+        let teamid = req.params.id;
+        await generateTeam(teamid);
+        res.redirect('/team/' + teamid + '/showTeam')
+    });
+
+    app.get('/team/:id/showTeam', teamAuth, async (req, res) => {
+        let teamID = req.params.id;
+        let unsortedTeams = await Storage.getSquadForTeam(teamID);
+        let team1 = [], team2 = [];
+        for (let i in unsortedTeams) {
+            if (unsortedTeams[i].team == 0)
+                team1.push(unsortedTeams[i]);
+            else
+                team2.push(unsortedTeams[i]);
+        }
+        let teams = { team1, team2 };
+
+        res.render('team/showTeam', { loggedIn: req.session.user, team: teams });
+    });
 };
 
 
@@ -244,8 +259,23 @@ function auth(req, res, next) {
         req.session.returnUrl = req.url;
         console.log(req.session.returnUrl);
         res.redirect('/signin');
+        return true;
     } else {
         next();
+    }
+}
+
+async function teamAuth(req, res, next) {
+    if (auth(req, res, next)) {
+        res.redirect('/teams')
+        return;
+    } else {
+        let id = req.params.id;
+        let players = await Storage.getPlayers(id);
+        for (let i in players) {
+            if (players[i].username == req.session.user)
+                return;
+        }
     }
 }
 
@@ -270,4 +300,46 @@ function validate(req, res, next) {
 function validateEmail(email) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
+}
+
+
+
+
+function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+}
+
+
+function getElo(team) {
+
+    let total = 0;
+    for (let i in team) {
+        total += parseInt(team[i].elo);
+    }
+    return total / team.length;
+}
+
+function getOdds(elo1, elo2) {
+    let tolorance = 400;
+    let r1 = Math.pow(10, elo1 / tolorance);
+    let r2 = Math.pow(10, elo2 / tolorance);
+
+    let totalR = r1 + r2;
+
+    return r1 / totalR;
 }
