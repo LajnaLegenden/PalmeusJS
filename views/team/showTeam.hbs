@@ -1,5 +1,8 @@
 <main class="container">
     <h2>Teams</h2>
+    <form action="/team/{{{teamid}}}/getTeam">
+        <button type="submit" class="btn btn-primary">Click to generate a team</button>
+    </form>
     <div class="devider">
 
         <div class="teamTable">
@@ -8,19 +11,22 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
+                        <th scope="col">Elo</th>
                         <th scope="col">Recomended Pos</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{#each team.team1}}
                     <tr>
-                        <th scope="row">{{{@index}}}</th>
+                        <th scope="row">{{{add @index}}}</th>
                         <td>{{{this.name}}}</td>
+                        <td>{{{this.info.elo}}}</td>
                         <td>{{{this.info.position}}}</td>
                     </tr>
                     {{/each}}
                 </tbody>
             </table>
+            <p>Odds1 = {{{odds.odds1}}}</p>
         </div>
         <div class="teamTable">
             <table class="table table-borderless">
@@ -28,20 +34,22 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
+                        <th scope="col">Elo</th>
                         <th scope="col">Recomended Pos</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{#each team.team2}}
                     <tr>
-                        <th scope="row">{{{@index}}}</th>
+                        <th scope="row">{{{add @index}}}</th>
                         <td>{{{this.name}}}</td>
+                        <td>{{{this.info.elo}}}</td>
                         <td>{{{this.info.position}}}</td>
                     </tr>
                     {{/each}}
                 </tbody>
             </table>
+            <p>Odds2 = {{{odds.odds2}}}</p>
         </div>
     </div>
-
 </main>

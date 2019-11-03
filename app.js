@@ -23,6 +23,11 @@ app.set('views', __dirname + '/views');
 
 hbs.registerPartials(__dirname + '/views/partials');
 
+//Helper for loops
+hbs.handlebars.registerHelper('add', function (value, options) {
+    return parseInt(value + 1);
+});
+
 //Validator
 app.use(express.json());
 

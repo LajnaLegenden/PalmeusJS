@@ -8,13 +8,14 @@
                     aria-controls="nav-home" aria-selected="true">Managed Teams</a>
                 {{/if}}
                 {{#if joinedTeams}}
-                <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#joinedTeams" role="tab"
-                    aria-controls="nav-profile" aria-selected="false">Joined Teams</a>
+                <a class="nav-item nav-link {{#unless managedTeams}}active{{/unless}}" id="nav-profile-tab"
+                    data-toggle="tab" href="#joinedTeams" role="tab" aria-controls="nav-profile"
+                    aria-selected="false">Joined Teams</a>
                 {{/if}}
                 {{#if invites}}
-                <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#invites" role="tab"
-                    aria-controls="nav-contact" aria-selected="false">Invites <span
-                        class="badge badge-light">{{noOfInvites}}</span></a>
+                <a class="nav-item nav-link {{#unless managedTeams}}{{#unless joinedTeams}}active{{/unless}}{{/unless}}"
+                    id="nav-contact-tab" data-toggle="tab" href="#invites" role="tab" aria-controls="nav-contact"
+                    aria-selected="false">Invites <span class="badge badge-light">{{noOfInvites}}</span></a>
                 {{/if}}
             </div>
         </nav>
@@ -22,7 +23,8 @@
         <div class="noTeam">Join a team</div>
         {{/if}}
         <div class="tab-content" id="nav-tabContent">
-            <div class="tab-pane fade show active" id="managedTeams" role="tabpanel" aria-labelledby="nav-home-tab">
+            <div class="tab-pane fade {{#if managedTeams}} show active{{/if}}" id="managedTeams" role="tabpanel"
+                aria-labelledby="nav-home-tab">
                 {{#if managedTeams}}
                 <table class="table table-borderless">
                     <thead>
@@ -53,7 +55,8 @@
 
                 {{/if}}
             </div>
-            <div class="tab-pane fade" id="joinedTeams" role="tabpanel" aria-labelledby="nav-profile-tab">
+            <div class="tab-pane fade {{#unless managedTeams}}show active{{/unless}}" id="joinedTeams" role="tabpanel"
+                aria-labelledby="nav-profile-tab">
                 {{#if joinedTeams}}
                 <table class="table table-borderless">
                     <thead>
@@ -82,9 +85,9 @@
                         {{/each}}
                     </tbody>
                 </table>
-
                 {{/if}}</div>
-            <div class="tab-pane fade" id="invites" role="tabpanel" aria-labelledby="nav-contact-tab">{{#if invites}}
+            <div class="tab-pane fade {{#unless managedTeams}}{{#unless joinedTeams}}show active{{/unless}}{{/unless}}"
+                id="invites" role="tabpanel" aria-labelledby="nav-contact-tab">{{#if invites}}
                 <table class="table table-borderless">
                     <thead>
                         <tr>

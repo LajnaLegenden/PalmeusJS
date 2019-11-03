@@ -52,6 +52,7 @@ module.exports = (app, hbs) => {
     });
 
     app.post('/signup', validate, async (req, res) => {
+        console.log(req.body)
         let doStuff = true;
         let err = {};
         let fName = req.body.fName;
@@ -60,6 +61,8 @@ module.exports = (app, hbs) => {
         let password1 = req.body.password1;
         let password2 = req.body.password2;
         let email = req.body.email;
+
+
 
         username = username.charAt(0).toUpperCase() + username.slice(1);
         let i = await Storage.getUserByUsername(username);
@@ -211,7 +214,7 @@ module.exports = (app, hbs) => {
                 let team = await Storage.getTeamById(id);
                 res.render('team/teamInvite', { title: team.name, loggedIn, team: team, error })
             }
-            res.redirect('/teams/' + id + '/invite');
+            res.redirect('/team/' + id + '/invite');
         }
 
     });
@@ -233,8 +236,8 @@ module.exports = (app, hbs) => {
     //GetTeam
     app.get('/team/:id/getTeam', teamAuth, async (req, res) => {
         let teamid = req.params.id;
-        await generateTeam(teamid);
-        res.redirect('/team/' + teamid + '/showTeam')
+        let odds = await generateTeam(teamid);
+        res.redirect('/team/' + teamid + '/showTeam?o=' + odds)
     });
 
     app.get('/team/:id/showTeam', teamAuth, async (req, res) => {
@@ -248,8 +251,11 @@ module.exports = (app, hbs) => {
                 team2.push(unsortedTeams[i]);
         }
         let teams = { team1, team2 };
-
-        res.render('team/showTeam', { loggedIn: req.session.user, team: teams });
+        let odds1 = 0;
+        if (req.query.o)
+            odds1 = req.query.o;
+        odds2 = 1-odds1;
+        res.render('team/showTeam', { loggedIn: req.session.user, team: teams, teamid: teamID, odds: {odds1,odds2} });
     });
 };
 
@@ -267,7 +273,7 @@ function auth(req, res, next) {
 
 async function teamAuth(req, res, next) {
     if (auth(req, res, next)) {
-        res.redirect('/teams')
+
         return;
     } else {
         let id = req.params.id;
@@ -276,6 +282,7 @@ async function teamAuth(req, res, next) {
             if (players[i].username == req.session.user)
                 return;
         }
+        res.redirect('/teams')
     }
 }
 

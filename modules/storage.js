@@ -142,12 +142,12 @@ class Database {
         let team1 = teams.team1;
         let team2 = teams.team2;
 
-        addToDB(team1, 0);
-        addToDB(team2, 1);
+        await addToDB(team1, 0);
+        await addToDB(team2, 1);
 
-        function addToDB(team, teamNumber) {
+        async function addToDB(team, teamNumber) {
             for (let i in team) {
-                mysql.queryP(addToSquad, [team[i].username, teamNumber, teamID]);
+                await mysql.queryP(addToSquad, [team[i].username, teamNumber, teamID]);
             }
         }
         return "OK";
