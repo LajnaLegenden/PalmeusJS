@@ -33,9 +33,9 @@ const deleteSquad = `DELETE FROM squad WHERE teamID = ?`;
 const getStatusForTeam = `SELECT response,teamID FROM status WHERE teamID = ? AND userID = ?`;
 const removeStatus = `DELETE FROM status WHERE teamID = ? AND userID  = ?`
 const changeStatus = `INSERT INTO status (teamID,userID,response) VALUES (?,?,?)`
-const getAllGoingPlayers = `SELECT * FROM status WHERE teamID = ?`;
+const getAllGoingPlayers = `SELECT * FROM status WHERE teamID = ? AND response = ?`;
 const getAllTeams = `SELECT * FROM teams`;
-const getUserIdFromUsername = `SELECT id FROM users WHERE Username = ?`
+const getUserIdFromUsername = `SELECT id FROM users WHERE username = ?`
 
 class Database {
     //User functions
@@ -75,14 +75,17 @@ class Database {
     }
 
     async getUserIdFromUsername(username) {
-        let res = await mysql.queryP(getUserIdFromUsername, username);
+        let res = await mysql.queryP(getUserIdFromUsername, [username]);
+        if (!res[0]) {
+            return false;
+        }
         return res[0].id;
     }
 
     async createTeam(nameOfEvent, description, location, timeOfDay, dayOfWeek, dayOfWeekAsNumber, admin, priceSingle, priceMultiple, maxplayers) {
         let id = getNewId();
         let adminID = await this.getUserIdFromUsername(admin);
-        let time = nextDay(new Date(), dayOfWeekAsNumber);
+        let time = nextDay(new Date(), dayOfWeekAsNumber, timeOfDay);
         time = mysql.escape(time);
         await mysql.queryP(addTeam, [nameOfEvent, id, description, location, timeOfDay, dayOfWeek, adminID, priceSingle, priceMultiple, maxplayers, time]);
         await mysql.queryP(addAdmin, [id, adminID, adminID]);
@@ -104,7 +107,8 @@ class Database {
     }
 
     async getTeamsByUsername(username) {
-        let teams = await mysql.queryP(getTeamsByUsername, username);
+        let userID = await this.getUserIdFromUsername(username);
+        let teams = await mysql.queryP(getTeamsByUsername, userID);
         let out = [];
         for (let i in teams) {
             let team = await this.getTeamById(teams[i].teamID);
@@ -136,7 +140,8 @@ class Database {
     }
 
     async getTeamInvitesForUser(username) {
-        let teams = await mysql.queryP(getTeamInvitesForUser, username);
+        let userID = await this.getUserIdFromUsername(username);
+        let teams = await mysql.queryP(getTeamInvitesForUser, userID);
         for (let i in teams) {
             let teamData = (await mysql.queryP(getTeamByID, teams[i].team))[0]
             teams[i].teamData = teamData;
@@ -173,13 +178,13 @@ class Database {
         await mysql.queryP(deleteSquad, teamID);
         let team1 = teams.team1;
         let team2 = teams.team2;
-
+        console.log("Teams", teams);
         await addToDB(team1, 0);
         await addToDB(team2, 1);
 
         async function addToDB(team, teamNumber) {
             for (let i in team) {
-                await mysql.queryP(addToSquad, [team[i].username, teamNumber, teamID]);
+                await mysql.queryP(addToSquad, [team[i].userID, teamNumber, teamID]);
             }
         }
         return "OK";
@@ -197,7 +202,8 @@ class Database {
     }
 
     async getTeamDataForPlayer(teamid, username) {
-        return (await mysql.queryP(getTeamDataForPlayer, [teamid, username]))[0];
+        let userID = await this.getUserIdFromUsername(username);
+        return (await mysql.queryP(getTeamDataForPlayer, [teamid, userID]))[0];
     }
 
     async getStatusForTeam(teamID, username) {
@@ -215,7 +221,7 @@ class Database {
         return await this.getStatusForTeam(teamID, username);
     }
     async getAllGoingPlayers(teamID) {
-        return await mysql.queryP(getAllGoingPlayers, teamID);
+        return await mysql.queryP(getAllGoingPlayers, [teamID, "Going"]);
     }
 
     async getAllTeams() {
@@ -253,8 +259,12 @@ async function getToken() {
     }
 }
 
-function nextDay(d, dow) {
+function nextDay(d, dow, time) {
     d.setDate(d.getDate() + (dow + (7 - d.getDay())) % 7);
+    let hr = time.substring(0, 2);
+    let min = time.substring(3, 5);
+    d.setHours(hr);
+    d.setMinutes(min)
     return d;
 }
 

@@ -5,9 +5,9 @@ async function doStuff() {
     await connection.queryP(`
     CREATE TABLE users (
         Username varchar(255),
-        id varchar(255),
-        firstNe varchar(255),
-        lastNe varchar(255),
+        id varchar(255) PRIMARY KEY,
+        firstName varchar(255),
+        lastName varchar(255),
         email varchar(255),
         password varchar(255)
     );`, (error, results, fields) => {

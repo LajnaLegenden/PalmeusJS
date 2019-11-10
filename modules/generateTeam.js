@@ -1,15 +1,24 @@
 const Storage = require('./storage');
 
 //How much can the teams diffrer
-const skillTolorance = 0.2;
-const positionDiffrance = 1;
+let skillTolorance = 0.2;
+let positionDiffrance = 1;
 const tolorance = 150;
+const debug = true;
 
-let team, players, totalPlayers, team1Length, team1, team2, team1Odds, team2Odds, team1Elo, team2Elo;
+let players, totalPlayers, team1Length, team1, team2, team1Odds, team2Odds, team1Elo, team2Elo;
 
 module.exports = async function (teamID) {
-    team = await Storage.getTeamById(teamID);
-    players = await Storage.getPlayers(teamID);
+
+    if (debug) {
+        players = await Storage.getPlayers(teamID);
+    } else {
+        players = await Storage.getAllGoingPlayers(teamID);
+        for (let i in players) {
+            players[i] = await Storage.getTeamDataForPlayer(teamID, players[i].username);
+        }
+    }
+
 
     totalPlayers = players.length;
     team1Length = Math.round(totalPlayers / 2);
@@ -27,7 +36,7 @@ async function generateTeam(players) {
     team2 = []
     players = shuffle(players);
     for (let i in players) {
-        let profile = await Storage.getUserByUsername(players[i].username);
+        let profile = await Storage.getUserByID(players[i].userID);
         players[i].name = `${profile.firstName} ${profile.lastName}`
         if (i < team1Length)
             team1.push(players[i]);
@@ -60,8 +69,8 @@ async function generateTeam(players) {
         }
     }
 
-    team1Elo = getElo(team1);
-    team2Elo = getElo(team2);
+    team1Elo = getElo(team1) || 1000;
+    team2Elo = getElo(team2) || 1000;
 
     team1Odds = getOdds(team1Elo, team2Elo);
     team2Odds = 1 - team1Odds;
@@ -74,12 +83,13 @@ async function generateTeam(players) {
             invalid = false
         }
         if (!invalid) {
+            positionDiffrance += 0.1
             return await generateTeam(players);
         } else {
             return;
         }
     } else {
-
+        skillTolorance += 0.05;
         return await generateTeam(players);
     }
 }

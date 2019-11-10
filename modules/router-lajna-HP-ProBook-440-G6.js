@@ -16,7 +16,7 @@ module.exports = (app, hbs) => {
     //Login
     app.get('/signin', (req, res) => {
         if (req.session.user != undefined) {
-            console.log(req);
+
         }
         res.render('signin', { title: 'Sign in' });
     });
@@ -52,7 +52,7 @@ module.exports = (app, hbs) => {
     });
 
     app.post('/signup', validate, async (req, res) => {
-        console.log(req.body)
+
         let doStuff = true;
         let err = {};
         let fName = req.body.fName;
@@ -88,7 +88,7 @@ module.exports = (app, hbs) => {
                 req.session.user = username;
             res.redirect('/');
         } else {
-            console.log(err);
+
             res.render('signup', { title: 'Sign up', err, data: req.body });
         }
     });
@@ -105,7 +105,6 @@ module.exports = (app, hbs) => {
         let invites = await Storage.getTeamInvitesForUser(req.session.user);
         let noOfInvites = invites.length;
         let noTeam = true
-
         for (let i in joinedTeams) {
             joinedTeams[i].status = await Storage.getStatusForTeam(joinedTeams[i].id, req.session.user);
             joinedTeams[i].size = (await Storage.getPlayers(joinedTeams[i].id)).length;
@@ -167,7 +166,7 @@ module.exports = (app, hbs) => {
                 dayasNumber = 6;
                 break;
             default:
-                dayasNumber = 1;
+                dayasNumber = 0;
         }
         Storage.createTeam(a.nameOfEvent, a.description, a.location, a.time, a.day, dayasNumber, req.session.user, pricePer, pricePerSeason, maxPlayers)
         res.redirect('/teams')
@@ -189,7 +188,7 @@ module.exports = (app, hbs) => {
                 members[i].playerData = data;
 
             }
-            console.log(members);
+
             res.render('team/teamControl', { title: team.name, loggedIn, team: team, members })
         }
     });
@@ -309,7 +308,7 @@ module.exports = (app, hbs) => {
             odds1 = undefined;
             odds2 = undefined;
         }
-
+        console.log(teams);
         res.render('team/showSquad', { loggedIn: req.session.user, team: teams, teamid: teamID, odds: { odds1, odds2 } });
     });
 };
@@ -331,7 +330,7 @@ async function teamAuth(req, res, next) {
     } else {
         let id = req.params.id;
         let players = await Storage.getPlayers(id);
-        console.log(players);
+
         let cID = await Storage.getUserIdFromUsername(req.session.user);
         for (let i in players) {
             if (players[i].userID == cID);

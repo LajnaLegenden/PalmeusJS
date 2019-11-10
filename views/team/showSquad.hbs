@@ -1,0 +1,53 @@
+<main class="container">
+    <h2>Teams</h2>
+    <div class="devider">
+
+        <div class="teamTable">
+            <table class="table table-borderless">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Elo</th>
+                        <th scope="col">Recomended Pos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each team.team1}}
+                    <tr>
+                        <th scope="row">{{{add @index}}}</th>
+                        <td>{{{this.name}}}</td>
+                        <td>{{{this.info.elo}}}</td>
+                        <td>{{{this.info.position}}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            {{#if odds.odds1}}<p>Odds1 = {{{odds.odds1}}}</p>{{/if}}
+        </div>
+        <div class="teamTable">
+            <table class="table table-borderless">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Elo</th>
+                        <th scope="col">Recomended Pos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each team.team2}}
+                    <tr>
+                        <th scope="row">{{{add @index}}}</th>
+                        <td>{{{this.name}}}</td>
+                        <td>{{{this.info.elo}}}</td>
+                        <td>{{{this.info.position}}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            {{#if odds.odds2}}<p>Odds2 = {{{odds.odds2}}}</p>{{/if}}
+
+        </div>
+    </div>
+</main>

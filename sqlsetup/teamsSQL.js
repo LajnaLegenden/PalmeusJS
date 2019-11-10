@@ -5,15 +5,16 @@ async function doStuff() {
     await connection.queryP(`
     CREATE TABLE teams (
         name varchar(255),
-        id varchar(255),
+        id varchar(255) PRIMARY KEY,
         description varchar(255),
         location varchar(255),
         time varchar(10),
         dayOfTheWeek varchar(15),
-        creator varchar(255),
+        creatorID varchar(255) ,
         priceSingle integer,
         priceWhole integer,
-        maxplayers integer
+        maxplayers integer,
+        nextEvent varchar(64)
     );`, (error, results, fields) => {
         if (error) {
             console.log("error creating table topics ", error);

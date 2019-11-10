@@ -1,5 +1,5 @@
 <main class="container">
-    <a href="/teams/create"><i class="far fa-plus-square"></i></a>
+    <a href="/team/create"><i class="far fa-plus-square"></i></a>
     <main class="container">
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -45,7 +45,7 @@
                             <td>{{this.description}}</td>
                             <td>{{this.time}}</td>
                             <td>{{this.dayOfTheWeek}}</td>
-                            <td>25/96</td>
+                            <td>{{this.going}}/{{this.size}}</td>
                             <td>{{this.id}}</td>
                             <td>ADMIN</td>
                         </tr>
@@ -66,7 +66,7 @@
                             <th scope="col">Time</th>
                             <th scope="col">Day</th>
                             <th scope="col">Going</th>
-                            <th scope="col">ID</th>
+
                             <th scope="col">Options</th>
                         </tr>
                     </thead>
@@ -77,10 +77,12 @@
                             <td>{{this.description}}</td>
                             <td>{{this.time}}</td>
                             <td>{{this.dayOfTheWeek}}</td>
+                            <td>{{this.going}}/{{this.size}}</td>
 
-                            <td>25/96</td>
-                            <td>{{this.id}}</td>
-                            <td><button class="btn btn-dark">GOING</button></td>
+                            <td><button id="{{this.id}}"
+                                    class="btn status">{{this.status.response}}{{#unless this.status.response}}Not
+                                    Going{{/unless}}</button>
+                            </td>
                         </tr>
                         {{/each}}
                     </tbody>
@@ -129,3 +131,4 @@
         </div>
         </div>
     </main>
+    <script src="/public/js/teams.js" defer></script>

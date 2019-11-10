@@ -3,6 +3,7 @@ require('dotenv').config({ path: './env' });
 const express = require('express');
 const app = express();
 const router = require('./modules/router.js');
+//const schedluer = require('./modules/scheduler')
 const cookieSession = require("cookie-session");
 const https = require('https');
 const bodyParser = require('body-parser');
@@ -27,6 +28,10 @@ hbs.registerPartials(__dirname + '/views/partials');
 hbs.handlebars.registerHelper('add', function (value, options) {
     return parseInt(value + 1);
 });
+
+//Start timebased events
+//let s = new schedluer(5);
+//console.log(s);
 
 //Validator
 app.use(express.json());

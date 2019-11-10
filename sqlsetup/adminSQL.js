@@ -5,8 +5,8 @@ async function doStuff() {
     await connection.queryP(`
     CREATE TABLE admin (
         teamID varchar(255),
-        username varchar(255),
-        addedBy varchar(255)
+        userID varchar(255),
+        addedByID varchar(255)
     );`, (error, results, fields) => {
         if (error) {
             console.log("error creating table topics ", error);

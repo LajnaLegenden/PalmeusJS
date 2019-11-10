@@ -6,7 +6,7 @@ async function doStuff() {
     CREATE TABLE invite (
         id varchar(255),
         typeOfInvite varchar(63),
-        fromUser varchar(255),
+        fromUserID varchar(255) PRIMARY KEY,
         toEmailOrUsername varchar(63),
         position varchar(15),
         elo varchar(15),
