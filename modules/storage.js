@@ -9,7 +9,7 @@ const createNewUser = `INSERT INTO users (firstName,lastName,username,email,pass
 const verifyUsername = `SELECT * FROM users WHERE username = ?`;
 const getUserByID = `SELECT * FROM users WHERE id = ?`;
 const getManagedTeamsByUsername = `SELECT * FROM teams WHERE creatorID = ?`;
-const getTeamsByUsername = `SELECT * FROM members WHERE userID = ?`;
+const getTeamsByID = `SELECT * FROM members WHERE userID = ?`;
 
 //Team
 const addTeam = `INSERT INTO teams (name,id,description,location,time,dayOfTheWeek,creatorID,priceSingle,priceWhole,maxplayers,nextEvent) VALUES (?,?,?,?,?,?,?,?,?,?,?)`
@@ -33,14 +33,15 @@ const deleteSquad = `DELETE FROM squad WHERE teamID = ?`;
 const getStatusForTeam = `SELECT response,teamID FROM status WHERE teamID = ? AND userID = ?`;
 const removeStatus = `DELETE FROM status WHERE teamID = ? AND userID  = ?`
 const changeStatus = `INSERT INTO status (teamID,userID,response) VALUES (?,?,?)`
-const getAllGoingPlayers = `SELECT * FROM status WHERE teamID = ?`;
+const getAllGoingPlayers = `SELECT * FROM status WHERE teamID = ? AND response = "Going"`;
 const getAllTeams = `SELECT * FROM teams`;
-const getUserIdFromUsername = `SELECT id FROM users WHERE Username = ?`
+const getUserIdFromUsername = `SELECT id FROM users WHERE username = ?`
 
 class Database {
     //User functions
     async getUserByUsername(username) {
         let userID = await this.getUserIdFromUsername(username);
+
         let res = await mysql.queryP(getUserByID, userID);
 
         return res[0];
@@ -75,7 +76,9 @@ class Database {
     }
 
     async getUserIdFromUsername(username) {
+
         let res = await mysql.queryP(getUserIdFromUsername, username);
+
         return res[0].id;
     }
 
@@ -86,7 +89,7 @@ class Database {
         time = mysql.escape(time);
         await mysql.queryP(addTeam, [nameOfEvent, id, description, location, timeOfDay, dayOfWeek, adminID, priceSingle, priceMultiple, maxplayers, time]);
         await mysql.queryP(addAdmin, [id, adminID, adminID]);
-        this.joinTeam(adminID, id, 1000, true, "FW");
+        await this.joinTeam(adminID, id, 1000, true, "FW");
         return "OK";
     }
 
@@ -104,7 +107,8 @@ class Database {
     }
 
     async getTeamsByUsername(username) {
-        let teams = await mysql.queryP(getTeamsByUsername, username);
+        let userID = await this.getUserIdFromUsername(username);
+        let teams = await mysql.queryP(getTeamsByID, userID);
         let out = [];
         for (let i in teams) {
             let team = await this.getTeamById(teams[i].teamID);
@@ -178,8 +182,9 @@ class Database {
         await addToDB(team2, 1);
 
         async function addToDB(team, teamNumber) {
+
             for (let i in team) {
-                await mysql.queryP(addToSquad, [team[i].username, teamNumber, teamID]);
+                await mysql.queryP(addToSquad, [team[i].userID, teamNumber, teamID]);
             }
         }
         return "OK";
@@ -188,20 +193,22 @@ class Database {
     async getSquadForTeam(teamID) {
         let players = await mysql.queryP(getSquadForTeam, teamID);
         for (let i in players) {
-            let info = await this.getTeamDataForPlayer(teamID, players[i].playerUsername);
-            let profile = await Storage.getUserByUsername(players[i].playerUsername);
+            let info = await this.getTeamDataForPlayer(teamID, players[i].userID);
+            let profile = await Storage.getUserByID(players[i].userID);
             players[i].info = info;
             players[i].name = `${profile.firstName} ${profile.lastName}`
         }
         return players;
     }
 
-    async getTeamDataForPlayer(teamid, username) {
-        return (await mysql.queryP(getTeamDataForPlayer, [teamid, username]))[0];
+    async getTeamDataForPlayer(teamid, userID) {
+        return (await mysql.queryP(getTeamDataForPlayer, [teamid, userID]))[0];
     }
 
     async getStatusForTeam(teamID, username) {
-        let res = await mysql.queryP(getStatusForTeam, [teamID, username]);
+        let userID = await this.getUserIdFromUsername(username);
+        let res = await mysql.queryP(getStatusForTeam, [teamID, userID]);
+
         if (res.length == 0) {
             return "Not Going"
         } else {
@@ -215,7 +222,7 @@ class Database {
         return await this.getStatusForTeam(teamID, username);
     }
     async getAllGoingPlayers(teamID) {
-        return await mysql.queryP(getAllGoingPlayers, teamID);
+        return await mysql.queryP(getAllGoingPlayers, [teamID, "Going"]);
     }
 
     async getAllTeams() {

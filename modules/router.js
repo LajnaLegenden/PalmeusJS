@@ -16,7 +16,7 @@ module.exports = (app, hbs) => {
     //Login
     app.get('/signin', (req, res) => {
         if (req.session.user != undefined) {
-            console.log(req);
+            (req);
         }
         res.render('signin', { title: 'Sign in' });
     });
@@ -30,7 +30,7 @@ module.exports = (app, hbs) => {
             req.session.user = username;
             if (req.session.returnUrl != undefined) {
                 let url = req.session.returnUrl;
-                console.log(url);
+                (url);
                 req.session.returnUrl = undefined;
                 res.redirect(url);
             } else {
@@ -52,7 +52,7 @@ module.exports = (app, hbs) => {
     });
 
     app.post('/signup', validate, async (req, res) => {
-        console.log(req.body)
+        (req.body)
         let doStuff = true;
         let err = {};
         let fName = req.body.fName;
@@ -63,9 +63,8 @@ module.exports = (app, hbs) => {
         let email = req.body.email;
 
 
-
         username = username.charAt(0).toUpperCase() + username.slice(1);
-        let i = await Storage.getUserByUsername(username);
+        let i = await Storage.isRealUsername(username);
         if (i) {
             err.message = "Username already exists";
             err.fields = ["username"];
@@ -88,7 +87,7 @@ module.exports = (app, hbs) => {
                 req.session.user = username;
             res.redirect('/');
         } else {
-            console.log(err);
+            (err);
             res.render('signup', { title: 'Sign up', err, data: req.body });
         }
     });
@@ -114,7 +113,7 @@ module.exports = (app, hbs) => {
                 joinedTeams[i].status.response = "Not Going";
             }
         }
-
+        (joinedTeams);
         for (let i in managedTeams) {
             managedTeams[i].size = (await Storage.getPlayers(managedTeams[i].id)).length;
             managedTeams[i].going = (await Storage.getAllGoingPlayers(managedTeams[i].id)).length;
@@ -189,7 +188,7 @@ module.exports = (app, hbs) => {
                 members[i].playerData = data;
 
             }
-            console.log(members);
+            (members);
             res.render('team/teamControl', { title: team.name, loggedIn, team: team, members })
         }
     });
@@ -309,7 +308,7 @@ module.exports = (app, hbs) => {
             odds1 = undefined;
             odds2 = undefined;
         }
-
+        console.log(team1);
         res.render('team/showSquad', { loggedIn: req.session.user, team: teams, teamid: teamID, odds: { odds1, odds2 } });
     });
 };
@@ -331,7 +330,6 @@ async function teamAuth(req, res, next) {
     } else {
         let id = req.params.id;
         let players = await Storage.getPlayers(id);
-        console.log(players);
         let cID = await Storage.getUserIdFromUsername(req.session.user);
         for (let i in players) {
             if (players[i].userID == cID);

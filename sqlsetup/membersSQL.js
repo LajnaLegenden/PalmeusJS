@@ -4,7 +4,7 @@ async function doStuff() {
     await connection.queryP("drop table if exists members");
     await connection.queryP(`
     CREATE TABLE members (
-        userID varchar(255) PRIMARY KEY,
+        userID varchar(255),
         teamID varchar(255),
         elo varchar(255),
         priority boolean, 
