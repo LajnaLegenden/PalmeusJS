@@ -3,6 +3,7 @@ const asyncHandler = require('express-async-handler')
 const Storage = require('./storage');
 const Mail = require('./Mail');
 const generateTeam = require('./generateTeam');
+const reportScore = require('./reportScore');
 
 module.exports = (app, hbs) => {
 
@@ -16,7 +17,8 @@ module.exports = (app, hbs) => {
     //Login
     app.get('/signin', (req, res) => {
         if (req.session.user != undefined) {
-            (req);
+            if (req.session.returnUrl)
+                res.redirect(req.session.returnUrl)
         }
         res.render('signin', { title: 'Sign in' });
     });
@@ -127,8 +129,10 @@ module.exports = (app, hbs) => {
 
     //Status for team
     app.post('/team/:id/changeStatus', teamAuth, async (req, res) => {
+
         let teamID = req.params.id;
-        let r = await Storage.changeStatus(teamID, req.session.user, req.body.status);
+        await Storage.changeStatus(teamID, req.session.user, req.body.status);
+        let r = await Storage.getStatusForTeam(teamID, req.session.user);
         res.send(r);
     });
 
@@ -171,6 +175,15 @@ module.exports = (app, hbs) => {
         Storage.createTeam(a.nameOfEvent, a.description, a.location, a.time, a.day, dayasNumber, req.session.user, pricePer, pricePerSeason, maxPlayers)
         res.redirect('/teams')
     });
+
+    //Shot team info
+
+    app.get('/team/:id', teamAuth, async (req, res) => {
+        let teamID = req.params.id;
+        let team = await Storage.getTeamById(teamID)
+        let status = await Storage.getStatusForTeam(teamID, req.session.user);
+        res.render('team/showTeam', { loggedIn: req.session.user, title: "Your teams", team, status })
+    });
     //Team Manager
     app.get('/team/:id/manage', auth, async (req, res) => {
         let id = req.params.id;
@@ -182,6 +195,12 @@ module.exports = (app, hbs) => {
             let loggedIn = req.session.user;
             let team = await Storage.getTeamById(id);
             let members = await Storage.getPlayers(id);
+            let time = new Date(team.nextEvent) - new Date();
+
+            time /= 1000;
+            time /= 60;
+            let min = time % 60;
+            let hrs = time / 60
 
             for (let i in members) {
                 let data = await Storage.getUserByID(members[i].userID);
@@ -207,7 +226,7 @@ module.exports = (app, hbs) => {
 
     });
 
-    app.post('/team/:id/invite', async (req, res) => {
+    app.post('/team/:id/invite', auth, async (req, res) => {
         let id = req.params.id;
         let admin = await Storage.verifyAdmin(id, req.session.user);
         if (!admin.length) {
@@ -252,7 +271,7 @@ module.exports = (app, hbs) => {
                     mail.invite(inviteID, id, toUser.email, req.session.user);
                     await Storage.inviteByUsername(userOrEmail, req.body.elo, req.body.pos, req.session.user, id, inviteID);
                 });
-                // 
+                //
             }
             async function inviteByEmail(email) {
                 Storage.inviteByEmail(email, req.body.elo, req.body.pos, req.session.user, id)
@@ -272,10 +291,15 @@ module.exports = (app, hbs) => {
     app.get('/acceptInvite/:id', auth, async (req, res) => {
         let inviteID = req.params.id;
         let invite = (await Storage.getInvite(inviteID))[0];
-        let team = await Storage.getTeamById(invite.team);
-        let fromUser = await Storage.getUserByUsername(invite.fromUser);
+        if (invite) {
+            let team = await Storage.getTeamById(invite.team);
+            let fromUser = await Storage.getUserByUsername(invite.fromUser);
 
-        res.render('acceptInvite', { invite, inviteID, team, fromUser, loggedin: req.session.user })
+            res.render('acceptInvite', { invite, inviteID, team, fromUser, loggedin: req.session.user })
+        } else {
+            res.redirect('/')
+        }
+
     });
 
     app.post('/acceptInvite/:id', auth, async (req, res) => {
@@ -290,9 +314,26 @@ module.exports = (app, hbs) => {
         res.redirect('/team/' + teamid + '/showTeam?o=' + odds)
     });
 
+    app.post('/team/:id/report', teamAuth, async (req, res) => {
+        let teamID = req.params.id;
+        let r = req.body.score;
+        if (r.includes('1')) {
+            var result = "TEAM1"
+        } else if (r.includes('2')) {
+            var result = "TEAM2"
+        } else {
+            var result = "DRAW"
+        }
+
+        reportScore(result, teamID);
+        res.redirect('/team/' + teamID + 'manage')
+
+    })
+
     app.get('/team/:id/showTeam', teamAuth, async (req, res) => {
         let teamID = req.params.id;
         let unsortedTeams = await Storage.getSquadForTeam(teamID);
+
         let team1 = [], team2 = [];
         for (let i in unsortedTeams) {
             if (unsortedTeams[i].team == 0)
@@ -308,8 +349,18 @@ module.exports = (app, hbs) => {
             odds1 = undefined;
             odds2 = undefined;
         }
-        console.log(team1);
         res.render('team/showSquad', { loggedIn: req.session.user, team: teams, teamid: teamID, odds: { odds1, odds2 } });
+    });
+
+    app.post('/leaveTeam/:id', teamAuth, async (req, res) => {
+        let teamID = req.params.id;
+        let r = await Storage.leaveTeam(req.session.user, teamID);
+
+        if (r = "NO") {
+            res.redirect('/team/' + teamID)
+        } else {
+            res.redirect('/teams')
+        }
     });
 };
 

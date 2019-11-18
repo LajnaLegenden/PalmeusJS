@@ -4,7 +4,7 @@ async function doStuff() {
     await connection.queryP("drop table if exists status");
     await connection.queryP(`
     CREATE TABLE status (
-        userID varchar(255) PRIMARY KEY,
+        userID varchar(255),
         teamID varchar(255),
         response varchar(31)
     );`, (error, results, fields) => {

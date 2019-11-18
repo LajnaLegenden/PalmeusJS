@@ -36,6 +36,7 @@ async function generateTeam(players) {
     team2 = []
     players = shuffle(players);
     for (let i in players) {
+        console.log(players[i]);
         let profile = await Storage.getUserByID(players[i].userID);
         players[i].name = `${profile.firstName} ${profile.lastName}`
         if (i < team1Length)
@@ -89,7 +90,7 @@ async function generateTeam(players) {
             return;
         }
     } else {
-        skillTolorance += 0.05;
+        skillTolorance += 0.01;
         return await generateTeam(players);
     }
 }

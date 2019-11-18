@@ -27,7 +27,7 @@ const removeInvite = `DELETE FROM invite WHERE id = ?`;
 const getPlayers = `SELECT * FROM members where teamID = ?`
 const getUserByEmail = `SELECT * FROM users WHERE email = ?`;
 const addToSquad = `INSERT INTO squad (userID,team,teamID) VALUES (?,?,?)`;
-const getSquadForTeam = `SELECT * FROM squad WHERE teamID = ?`;
+const getSquadForTeam = `SELECT squad.team,squad.userID,squad.teamID,members.position,members.elo FROM squad JOIN members ON squad.teamID = members.teamID AND squad.teamID = ? AND squad.userID = members.userID ORDER BY FIELD(position,"GK","DF","FW"), userID`
 const getTeamDataForPlayer = `SELECT * FROM members where teamID = ? AND userID = ?`;
 const deleteSquad = `DELETE FROM squad WHERE teamID = ?`;
 const getStatusForTeam = `SELECT response,teamID FROM status WHERE teamID = ? AND userID = ?`;
@@ -36,6 +36,12 @@ const changeStatus = `INSERT INTO status (teamID,userID,response) VALUES (?,?,?)
 const getAllGoingPlayers = `SELECT * FROM status WHERE teamID = ? AND response = "Going"`;
 const getAllTeams = `SELECT * FROM teams`;
 const getUserIdFromUsername = `SELECT id FROM users WHERE username = ?`
+const updateElo = `UPDATE members SET elo = ? WHERE userID = ? AND teamID = ?`
+const resetTeamSquad = `DELETE FROM squad WHERE teamID = `
+//Leave Team
+const deleteFromStatus = `DELETE FROM status WHERE userID = ? and teamID = ?`
+const deleteFromSquad = `DELETE FROM squad WHERE userID = ? AND teamID = ?`
+const deleteFromMember = `DELETE FROM members WHERE userID = ? and teamID = ?`
 
 class Database {
     //User functions
@@ -46,7 +52,9 @@ class Database {
 
         return res[0];
     }
-
+    async resetTeamSquad(teamID) {
+        await mysql.queryP(deleteSquad, teamID);
+    }
     async getUserByID(id) {
         let res = await mysql.queryP(getUserByID, id);
         return res[0];
@@ -67,6 +75,11 @@ class Database {
         await mysql.queryP(createNewUser, [firstName, lastName, username, email, pass, id]);
         return id;
     }
+
+    async updateElo(userID, teamID, newElo) {
+        newElo = Math.floor(newElo);
+        mysql.queryP(updateElo, [newElo, userID, teamID]);
+    }
     async verifyUser(username, password) {
         let user = (await this.getUserByUsername(username));
         if (user)
@@ -74,7 +87,6 @@ class Database {
         else
             return false;
     }
-
     async getUserIdFromUsername(username) {
 
         let res = await mysql.queryP(getUserIdFromUsername, username);
@@ -130,7 +142,9 @@ class Database {
         return (await mysql.queryP(isRealUsername, username)).length ? true : false;
     }
     async inviteByUsername(username, elo, pos, from, team, token) {
+        from = await this.getUserIdFromUsername(from);
         let stmt = await mysql.queryP(addUsernameInvite, [username, elo, pos, token, from, team, "USERNAME"]);
+        return "OK";
     }
 
     async inviteByEmail(email, elo, pos, from, team) {
@@ -149,6 +163,7 @@ class Database {
     }
 
     async respondToInvite(id, answer, user) {
+        user = await this.getUserIdFromUsername(user);
         let invite = (await this.getInvite(id))[0];
         if (answer.length == 4) {
             this.joinTeam(user, invite.team, invite.elo, false, invite.position);
@@ -192,33 +207,34 @@ class Database {
 
     async getSquadForTeam(teamID) {
         let players = await mysql.queryP(getSquadForTeam, teamID);
+
         for (let i in players) {
-            let info = await this.getTeamDataForPlayer(teamID, players[i].userID);
+            // let info = await this.getTeamDataForPlayer(teamID, players[i].userID);
             let profile = await Storage.getUserByID(players[i].userID);
-            players[i].info = info;
+            //  players[i].info = info;
             players[i].name = `${profile.firstName} ${profile.lastName}`
         }
         return players;
     }
 
-    async getTeamDataForPlayer(teamid, userID) {
-        return (await mysql.queryP(getTeamDataForPlayer, [teamid, userID]))[0];
+    async getTeamDataForPlayer(teamid, username) {
+        return (await mysql.queryP(getTeamDataForPlayer, [teamid, username]))[0];
     }
 
     async getStatusForTeam(teamID, username) {
         let userID = await this.getUserIdFromUsername(username);
         let res = await mysql.queryP(getStatusForTeam, [teamID, userID]);
-
         if (res.length == 0) {
-            return "Not Going"
+            return { response: "Not Going", teamID: teamID }
         } else {
             return res[0];
         }
     }
 
     async changeStatus(teamID, username, status) {
-        await mysql.queryP(removeStatus, [teamID, username]);
-        await mysql.queryP(changeStatus, [teamID, username, status]);
+        let cID = await this.getUserIdFromUsername(username);
+        await mysql.queryP(removeStatus, [teamID, cID]);
+        await mysql.queryP(changeStatus, [teamID, cID, status]);
         return await this.getStatusForTeam(teamID, username);
     }
     async getAllGoingPlayers(teamID) {
@@ -228,6 +244,20 @@ class Database {
     async getAllTeams() {
         return await mysql.queryP(getAllTeams);
     }
+    async leaveTeam(username, teamID) {
+        let cID = await this.getUserIdFromUsername(username);
+        //Dont allow if admin  for now
+        let admin = await this.verifyAdmin(teamID, username);
+        if (admin.length != 0) {
+            return "NO"
+        } else {
+            mysql.queryP(deleteFromStatus, [cID, teamID])
+            mysql.queryP(deleteFromSquad, [cID, teamID])
+            mysql.queryP(deleteFromMember, [cID, teamID])
+            return "OK";
+        }
+    }
+
 }
 
 function getNewId() {

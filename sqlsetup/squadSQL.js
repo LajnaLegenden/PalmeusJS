@@ -6,7 +6,7 @@ async function doStuff() {
     CREATE TABLE squad (
         teamID varchar(127),
         team integer(4),
-        userID varchar(127) PRIMARY KEY
+        userID varchar(127)
     );`, (error, results, fields) => {
         if (error) {
             console.log("error creating table topics ", error);

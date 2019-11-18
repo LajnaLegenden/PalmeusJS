@@ -66,7 +66,6 @@
                             <th scope="col">Time</th>
                             <th scope="col">Day</th>
                             <th scope="col">Going</th>
-
                             <th scope="col">Options</th>
                         </tr>
                     </thead>
@@ -77,7 +76,7 @@
                             <td>{{this.description}}</td>
                             <td>{{this.time}}</td>
                             <td>{{this.dayOfTheWeek}}</td>
-                            <td>{{this.going}}/{{this.size}}</td>
+                            <td><span id="going{{{this.id}}}">{{this.going}}</span>/{{this.size}}</td>
 
                             <td><button id="{{this.id}}"
                                     class="btn status">{{this.status.response}}{{#unless this.status.response}}Not
