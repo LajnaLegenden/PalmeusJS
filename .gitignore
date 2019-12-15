@@ -1,5 +1,5 @@
 node_modules
-env
+.env
 
 # Logs
 logs
@@ -102,4 +102,5 @@ public
 
 # TernJS port file
 .tern-port
+env
 env
