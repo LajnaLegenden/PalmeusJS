@@ -27,7 +27,7 @@ module.exports = async function (teamID) {
     team2 = [];
     await generateTeam(players);
 
-    Storage.saveTeam(teamID, { team1, team2 });
+    await Storage.saveTeam(teamID, { team1, team2 });
     return team1Odds;
 }
 

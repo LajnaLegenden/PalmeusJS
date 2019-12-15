@@ -2,15 +2,46 @@
     <h1>{{{team.name}}}</h1>
     <h4>{{{team.description}}}</h4>
     <div class="dashboard">
-        <div class="nextEvent"></div>
+        <div class="devider">
+
+
+            <div class="buttons">
+                <h4>Options</h4>
+                <form action="/team/{{{team.id}}}/invite">
+                    <button type="submit" class="btn btn-primary">Click to invite players</button>
+                </form>
+
+
+
+                <form action="/team/{{{team.id}}}/showTeam">
+                    <button type="submit" class="btn btn-primary">Click to show current teams</button>
+                </form>
+            </div>
+
+            <div class="reportScore">
+                <form action="/team/{{{team.id}}}/report" method="post">
+                    <div class="form-group">
+                        <h4>Report score</h4>
+                        <select class="form-control" name="score" id="report">
+                            <option>Team 1 won</option>
+                            <option selected>Draw</option>
+                            <option>Team 2 won</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary">Submit score</button>
+                </form>
+            </div>
+        </div>
         <div class="playerList">
+            <h4 class="center">Players in team</h4>
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th scope="col">Name</th>
                         <th scope="col">Position</th>
-                        <th scope="col">Attandance</th>
                         <th scope="col">Ranking</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -18,40 +49,14 @@
                     <tr>
                         <th scope="row">{{this.playerData.firstName}} {{this.playerData.lastName}}</th>
                         <td>{{this.position}}</td>
-                        <td>{{this.attendance}}</td>
                         <td>{{this.elo}}</td>
+                        <td>{{this.email}}</td>
+                        <td>{{this.response}}</td>
                     </tr>
                     {{/each}}
                 </tbody>
             </table>
         </div>
-        <div class="invitePlayers">
-            <form action="/team/{{{team.id}}}/invite">
-                <button type="submit" class="btn btn-primary">Click to invite players</button>
-            </form>
-        </div>
-        <div class="eloInfo"></div>
-        <div class="getTeam">
-            <form action="/team/{{{team.id}}}/getTeam">
-                <button type="submit" class="btn btn-primary">Click to generate a team</button>
-            </form>
-            <form action="/team/{{{team.id}}}/showTeam">
-                <button type="submit" class="btn btn-primary">Click to show current teams</button>
-            </form>
-        </div>
 
-        <div class="reportScore">
-            <form action="/team/{{{team.id}}}/report" method="post">
-                <div class="form-group">
-                    <label for="report">Report score</label>
-                    <select class="form-control" name="score" id="report">
-                        <option>Team 1 won</option>
-                        <option selected>Draw</option>
-                        <option>Team 2 won</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary">Submit score</button>
-            </form>
-        </div>
     </div>
 </main>

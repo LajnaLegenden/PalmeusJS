@@ -182,7 +182,26 @@ module.exports = (app, hbs) => {
         let teamID = req.params.id;
         let team = await Storage.getTeamById(teamID)
         let status = await Storage.getStatusForTeam(teamID, req.session.user);
-        res.render('team/showTeam', { loggedIn: req.session.user, title: "Your teams", team, status })
+        let members = await Storage.getPlayers(teamID);
+        let unsortedTeams = await Storage.getSquadForTeam(teamID);
+        let render = true;
+        let team1 = [], team2 = [];
+        let isAdmin = (await Storage.verifyAdmin(teamID, req.session.user)).length >= 1 ? true : false;
+        for (let i in unsortedTeams) {
+            if (unsortedTeams[i].team == 0)
+                team1.push(unsortedTeams[i]);
+            else
+                team2.push(unsortedTeams[i]);
+        }
+        if (unsortedTeams.length == 0)
+            render = false
+
+        let squad = { team1, team2 }
+
+        for (let i in members) {
+            members[i].response = (await Storage.getStatusForTeam(teamID, members[i].Username)).response;
+        }
+        res.render('team/showTeam', { loggedIn: req.session.user, showTeam: render, title: "Your teams", team, isAdmin, members, status, squad })
     });
     //Team Manager
     app.get('/team/:id/manage', auth, async (req, res) => {
@@ -196,12 +215,14 @@ module.exports = (app, hbs) => {
             let team = await Storage.getTeamById(id);
             let members = await Storage.getPlayers(id);
             let time = new Date(team.nextEvent) - new Date();
-
+            for (let i in members) {
+                members[i].response = (await Storage.getStatusForTeam(id, members[i].Username)).response;
+            }
             time /= 1000;
             time /= 60;
             let min = time % 60;
             let hrs = time / 60
-
+            console.log(members)
             for (let i in members) {
                 let data = await Storage.getUserByID(members[i].userID);
                 members[i].playerData = data;
@@ -291,6 +312,7 @@ module.exports = (app, hbs) => {
     app.get('/acceptInvite/:id', auth, async (req, res) => {
         let inviteID = req.params.id;
         let invite = (await Storage.getInvite(inviteID))[0];
+
         if (invite) {
             let team = await Storage.getTeamById(invite.team);
             let fromUser = await Storage.getUserByUsername(invite.fromUser);
@@ -326,14 +348,14 @@ module.exports = (app, hbs) => {
         }
 
         reportScore(result, teamID);
-        res.redirect('/team/' + teamID + 'manage')
+        res.redirect('/team/' + teamID + '/manage')
 
     })
 
     app.get('/team/:id/showTeam', teamAuth, async (req, res) => {
         let teamID = req.params.id;
         let unsortedTeams = await Storage.getSquadForTeam(teamID);
-
+        let render = true;
         let team1 = [], team2 = [];
         for (let i in unsortedTeams) {
             if (unsortedTeams[i].team == 0)
@@ -342,6 +364,8 @@ module.exports = (app, hbs) => {
                 team2.push(unsortedTeams[i]);
         }
         let teams = { team1, team2 };
+        if (unsortedTeams.length == 0)
+            render = false
         let odds1;
         if (req.query)
             odds1 = req.query.o; odds2 = 1 - odds1;
@@ -349,18 +373,20 @@ module.exports = (app, hbs) => {
             odds1 = undefined;
             odds2 = undefined;
         }
-        res.render('team/showSquad', { loggedIn: req.session.user, team: teams, teamid: teamID, odds: { odds1, odds2 } });
+        console.log("Render", render)
+        res.render('team/showSquad', { loggedIn: req.session.user, showTeam: render, team: teams, teamid: teamID, odds: { odds1, odds2 } });
     });
 
     app.post('/leaveTeam/:id', teamAuth, async (req, res) => {
         let teamID = req.params.id;
         let r = await Storage.leaveTeam(req.session.user, teamID);
-
+        console.log("asd")
         if (r = "NO") {
             res.redirect('/team/' + teamID)
         } else {
             res.redirect('/teams')
         }
+        console.log(r)
     });
 };
 

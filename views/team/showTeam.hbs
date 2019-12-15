@@ -1,70 +1,115 @@
 <main class="container">
-    <div class="info">
-        <script>let time = new Date({{{ team.nextEvent }}});</script>
-        <h5>Time to event: <span id="countDown"></span> </h5>
-        <h6>Max players: {{team.maxplayers}}</h6>
-        <h6>Price per event: {{team.priceSingle}}</h6>
-    </div>
-    <div class="buttons">
-        <h4>Your status</h4>
-        <button id="{{team.id}}" class="btn status">{{status.response}}{{#unless status.response}}Not
-            Going{{/unless}}</button>
-        <form action="/leaveTeam/{{team.id}}" method="post"><button class="btn btn-danger">Leave Team</button></form>
-    </div>
-    <div class="team">
-        {{#if squad}}
-        <div class="teamTable">
-            <table class="table table-borderless">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Elo</th>
-                        <th scope="col">Recomended Pos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each team.team1}}
-                    <tr>
-                        <th scope="row">{{{add @index}}}</th>
-                        <td>{{{this.name}}}</td>
-                        <td>{{{this.elo}}}</td>
-                        <td>{{{this.position}}}</td>
-                    </tr>
-                    {{/each}}
-                </tbody>
-            </table>
-            {{#if odds.odds1}}<p>Odds1 = {{{odds.odds1}}}</p>{{/if}}
+    <div class="box">
+        <div class="devider">
+            <h2>{{team.name}}</h2>
         </div>
-        <div class="teamTable">
-            <table class="table table-borderless">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Elo</th>
-                        <th scope="col">Recomended Pos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each team.team2}}
-                    <tr>
-                        <th scope="row">{{{add @index}}}</th>
-                        <td>{{{this.name}}}</td>
-                        <td>{{{this.elo}}}</td>
-                        <td>{{{this.position}}}</td>
-                    </tr>
-                    {{/each}}
-                </tbody>
-            </table>
-            {{#if odds.odds2}}<p>Odds2 = {{{odds.odds2}}}</p>{{/if}}
+        <div class="devider">
+            <div class="buttons">
+                <h4>Your status</h4>
+                <button id="{{team.id}}" class="btn status">{{status.response}}{{#unless status.response}}Not
+                    Going{{/unless}}</button>
 
+            </div>
+            <div class="info">
+                <script>let time = new Date({{{ team.nextEvent }}});</script>
+                <h6>Time to event: <span id="countDown"></span> </h5>
+                    <h6>Time: {{team.time}}</h6>
+                    <h6>Day: {{team.dayOfTheWeek}}</h6>
+
+            </div>
+
+            <div class="options">
+                <h4>Options</h4>
+                <form action="/leaveTeam/{{team.id}}" method="post"><button class="btn btn-danger">Leave Team</button>
+                </form>
+                {{#if isAdmin}}
+                <form action="/team/{{team.id}}/manage" method="get"><button class="btn btn-primary">Manage
+                        Team</button>
+                </form>
+                {{/if}}
+            </div>
         </div>
-        {{/if}}
-        {{#unless squad}}
-        display team
+    </div>
+    <div class="box">
+        <div class="team">
+            {{#if showTeam}}
+            <h3 class="center">Teams for next event</h3>
+            <div class="devider">
+                <div class="teamTable">
+                    <h4>Team 1 </h4>
+                    <table class="table table-borderless">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Recomended Pos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each squad.team1}}
+                            <tr>
+                                <th scope="row">{{{add @index}}}</th>
+                                <td>{{{this.name}}}</td>
+                                <td>{{{this.position}}}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                    {{#if odds.odds1}}<p>Odds1 = {{{odds.odds1}}}</p>{{/if}}
+                </div>
+                <div class="teamTable">
+                    <h4>Team 2</h4>
+                    <table class="table table-borderless">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Elo</th>
+                                <th scope="col">Recomended Pos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each squad.team2}}
+                            <tr>
+                                <th scope="row">{{{add @index}}}</th>
+                                <td>{{{this.name}}}</td>
+                                <td>{{{this.elo}}}</td>
+                                <td>{{{this.position}}}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                    {{#if odds.odds2}}<p>Odds2 = {{{odds.odds2}}}</p>{{/if}}
+
+                </div>
+            </div>
+            {{/if}}
+            {{#unless showTeam}}
+            <h3 class="center">Players in team</h3>
+            <div class="playerList">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Position</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each members}}
+                        <tr>
+                            <th scope="row">{{this.firstName}} {{this.lastName}}</th>
+                            <td>{{this.position}}</td>
+                            <td>{{this.response}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
         {{/unless}}
     </div>
+
 </main>
 <script src="/public/js/teams.js" defer></script>
 <script src="/public/js/time.js" defer></script>

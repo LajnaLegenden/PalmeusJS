@@ -24,7 +24,7 @@ const joinTeam = `INSERT INTO members (userID,teamID,elo,priority,attendance,pos
 const getInvite = `SELECT * FROM invite WHERE id = ?`;
 const getTeamInvitesForUser = `SELECT * FROM invite where toEmailOrUsername = ? and typeOfInvite = "USERNAME"`
 const removeInvite = `DELETE FROM invite WHERE id = ?`;
-const getPlayers = `SELECT * FROM members where teamID = ?`
+const getPlayers = `SELECT * FROM members JOIN users on members.userID = users.id WHERE members.teamID = ?`
 const getUserByEmail = `SELECT * FROM users WHERE email = ?`;
 const addToSquad = `INSERT INTO squad (userID,team,teamID) VALUES (?,?,?)`;
 const getSquadForTeam = `SELECT squad.team,squad.userID,squad.teamID,members.position,members.elo FROM squad JOIN members ON squad.teamID = members.teamID AND squad.teamID = ? AND squad.userID = members.userID ORDER BY FIELD(position,"GK","DF","FW"), userID`

@@ -1,5 +1,8 @@
 <main class="container">
     <h2>Teams</h2>
+
+
+    {{#if showTeam}}
     <div class="devider">
 
         <div class="teamTable">
@@ -50,4 +53,11 @@
 
         </div>
     </div>
+    {{/if}}
+    {{#unless showTeam}}
+    <p>Click below to generate a team</p>
+    {{/unless}}
+    <form action="/team/{{{teamid}}}/getTeam">
+        <button type="submit" class="btn btn-primary">Click to generate a team</button>
+    </form>
 </main>
