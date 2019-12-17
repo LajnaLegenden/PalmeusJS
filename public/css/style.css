@@ -44,3 +44,21 @@
 .center {
   text-align: center;
 }
+
+.notGoing {
+  background-image: linear-gradient(
+    90deg,
+    rgba(2, 0, 36, 0) 0%,
+    rgba(6, 5, 84, 0) 75%,
+    rgba(212, 0, 0, 0.7413340336134453) 100%
+  );
+}
+
+.going {
+  background-image: linear-gradient(
+    90deg,
+    rgba(2, 0, 36, 0) 0%,
+    rgba(6, 5, 84, 0) 75%,
+    rgba(0, 212, 26, 0.7413340336134453) 100%
+  );
+}

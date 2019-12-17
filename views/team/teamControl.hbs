@@ -1,23 +1,19 @@
 <main class="container">
-    <h1>{{{team.name}}}</h1>
-    <h4>{{{team.description}}}</h4>
+    <div class="box">
+        <h1>{{{team.name}}}</h1>
+        <h4>{{{team.description}}}</h4>
+    </div>
     <div class="dashboard">
-        <div class="devider">
-
-
+        <div class="devider box">
             <div class="buttons">
                 <h4>Options</h4>
                 <form action="/team/{{{team.id}}}/invite">
                     <button type="submit" class="btn btn-primary">Click to invite players</button>
                 </form>
-
-
-
                 <form action="/team/{{{team.id}}}/showTeam">
                     <button type="submit" class="btn btn-primary">Click to show current teams</button>
                 </form>
             </div>
-
             <div class="reportScore">
                 <form action="/team/{{{team.id}}}/report" method="post">
                     <div class="form-group">
@@ -32,7 +28,7 @@
                 </form>
             </div>
         </div>
-        <div class="playerList">
+        <div class="playerList box">
             <h4 class="center">Players in team</h4>
             <table class="table table-striped">
                 <thead>
@@ -44,14 +40,14 @@
                         <th scope="col">Status</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="playerStatus">
                     {{#each members}}
                     <tr>
                         <th scope="row">{{this.playerData.firstName}} {{this.playerData.lastName}}</th>
                         <td>{{this.position}}</td>
                         <td>{{this.elo}}</td>
                         <td>{{this.email}}</td>
-                        <td>{{this.response}}</td>
+                        <td class="status">{{this.response}}</td>
                     </tr>
                     {{/each}}
                 </tbody>
@@ -60,3 +56,4 @@
 
     </div>
 </main>
+<script src="/public/js/response.js" defer></script>

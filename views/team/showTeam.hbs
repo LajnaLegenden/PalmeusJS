@@ -6,7 +6,7 @@
         <div class="devider">
             <div class="buttons">
                 <h4>Your status</h4>
-                <button id="{{team.id}}" class="btn status">{{status.response}}{{#unless status.response}}Not
+                <button id="{{team.id}}" class="btn statusChange">{{status.response}}{{#unless status.response}}Not
                     Going{{/unless}}</button>
 
             </div>
@@ -95,12 +95,12 @@
                             <th scope="col">Status</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="playerStatus">
                         {{#each members}}
                         <tr>
                             <th scope="row">{{this.firstName}} {{this.lastName}}</th>
                             <td>{{this.position}}</td>
-                            <td>{{this.response}}</td>
+                            <td class="status">{{this.response}}</td>
                         </tr>
                         {{/each}}
                     </tbody>
@@ -111,5 +111,7 @@
     </div>
 
 </main>
+
 <script src="/public/js/teams.js" defer></script>
 <script src="/public/js/time.js" defer></script>
+<script src="/public/js/response.js" defer></script>
