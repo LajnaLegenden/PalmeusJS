@@ -79,12 +79,15 @@ async function generateTeam(players) {
     if (Math.abs(team1Odds - team2Odds) < skillTolorance) {
         let invalid = true;
         if (Math.abs(team1Df - team2Df > positionDiffrance)) {
-            invalid = false
+            invalid = false;
+            positionDiffrance += 0.1
         } else if (Math.abs(team1Fw - team2Fw > positionDiffrance)) {
-            invalid = false
+            invalid = false;
+            positionDiffrance += 0.1
+        } else if (Math.abs(team1Gl - team2Gl > 0)) {
+            invalid = false;
         }
         if (!invalid) {
-            positionDiffrance += 0.1
             return await generateTeam(players);
         } else {
             return;

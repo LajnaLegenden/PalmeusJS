@@ -86,7 +86,9 @@ typings/
 
 # gatsby files
 .cache/
-public
+public/js/bootstrap
+public/js/popper
+public/js/jquery
 
 # vuepress build output
 .vuepress/dist
