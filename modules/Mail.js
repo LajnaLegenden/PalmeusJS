@@ -14,7 +14,10 @@ class Mail {
             subject: subject
         });
         send({ html: body }, (err, res, fullRes) => {
-            if (err) return "Error sending mail to reciptiant";
+            if (err) {
+                console.log(err);
+            }
+            console.log("Sent email to " + email)
             return "Invite sucsess"
         });
     }

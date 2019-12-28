@@ -40,7 +40,7 @@ module.exports = (app, hbs) => {
             }
         } else {
             err.message = "Wrong username or password";
-            res.render('signin', { title: 'Sign in', err });
+            res.render('signin', { title: 'Sign in', err, loggedin: req.session.user });
         }
     });
 
@@ -49,7 +49,7 @@ module.exports = (app, hbs) => {
         if (req.session.user != undefined) {
             res.redirect('/');
         } else {
-            res.render('signup', { title: 'Sign up' })
+            res.render('signup', { title: 'Sign up', loggedin: req.session.user })
         }
     });
 
@@ -90,7 +90,7 @@ module.exports = (app, hbs) => {
             res.redirect('/');
         } else {
             (err);
-            res.render('signup', { title: 'Sign up', err, data: req.body });
+            res.render('signup', { title: 'Sign up', err, data: req.body, loggedin: req.session.user });
         }
     });
     // Sign out
@@ -138,7 +138,7 @@ module.exports = (app, hbs) => {
 
     //Create Team
     app.get('/team/create', auth, (req, res) => {
-        res.render('team/createTeam', { title: 'Create a team' });
+        res.render('team/createTeam', { title: 'Create a team', loggedin: req.session.user });
     });
 
     app.post('/team/createTeam', auth, validate, (req, res) => {
@@ -229,7 +229,7 @@ module.exports = (app, hbs) => {
 
             }
             (members);
-            res.render('team/teamControl', { title: team.name, loggedIn, team: team, members })
+            res.render('team/teamControl', { title: team.name, loggedIn, team: team, members, loggedin: req.session.user })
         }
     });
     //Invite
@@ -242,7 +242,7 @@ module.exports = (app, hbs) => {
         else {
             let loggedIn = req.session.user;
             let team = await Storage.getTeamById(id);
-            res.render('team/teamInvite', { title: team.name, loggedIn, team: team })
+            res.render('team/teamInvite', { title: team.name, loggedIn, team: team, loggedin: req.session.user })
         }
 
     });
@@ -263,10 +263,13 @@ module.exports = (app, hbs) => {
             } else {
                 inviteBy = 'Username';
             }
+            console.log(inviteBy, "typeofInvite")
+
+
             switch (inviteBy) {
                 case "Email":
                     let user = await Storage.getUserByEmail(userOrEmail);
-                    if (user) {
+                    if (user.length != 0) {
                         sendInviteToUsername(user.username);
                     }
                     await inviteByEmail(userOrEmail);
@@ -295,14 +298,16 @@ module.exports = (app, hbs) => {
                 //
             }
             async function inviteByEmail(email) {
-                Storage.inviteByEmail(email, req.body.elo, req.body.pos, req.session.user, id)
+                Storage.inviteByEmail(email, req.body.elo, req.body.pos, req.session.user, id).then(async (inviteID) => {
+                    mail.invite(inviteID, id, email, req.session.user);
+                });
             }
             async function err(err) {
                 let error = {}
                 error.message = err;
                 let loggedIn = req.session.user;
                 let team = await Storage.getTeamById(id);
-                res.render('team/teamInvite', { title: team.name, loggedIn, team: team, error })
+                res.render('team/teamInvite', { title: team.name, loggedIn, team: team, error, loggedin: req.session.user })
             }
             res.redirect('/team/' + id + '/invite');
         }
@@ -315,7 +320,7 @@ module.exports = (app, hbs) => {
 
         if (invite) {
             let team = await Storage.getTeamById(invite.team);
-            let fromUser = await Storage.getUserByUsername(invite.fromUser);
+            let fromUser = await Storage.getUserByUsername(invite.fromUserID);
 
             res.render('acceptInvite', { invite, inviteID, team, fromUser, loggedin: req.session.user })
         } else {
