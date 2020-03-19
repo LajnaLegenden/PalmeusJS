@@ -393,6 +393,13 @@ module.exports = (app, hbs) => {
         }
         console.log(r)
     });
+
+    //AdminConsole
+    app.get('/admin', auth, siteAdminAuth, (req, res) => {
+
+    });
+
+
 };
 
 
@@ -442,4 +449,12 @@ function validate(req, res, next) {
 function validateEmail(email) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
+}
+
+
+async function siteAdminAuth(req, res, next) {
+    let cID = await Storage.getUserIdFromUsername(req.session.user);
+    let user = await Storage.getUserByID(cID);
+    if (user.role == "admin") next();
+    else res.redirect('/');
 }
