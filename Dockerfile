@@ -19,4 +19,4 @@ ENV PM2_SECRET_KEY ckyi0d5qif4kpuw
 COPY . .
 
 EXPOSE 3000
-CMD ["pm2-runtime", "app.js"]
+CMD ["pm2-runtime", "app.js", "--name", "Palmeus JS"]
