@@ -2,7 +2,12 @@ version: 2
 
 jobs:
     build:
+        executor:
+            name: node/default
         steps:
+            - add_ssh_keys:
+                  fingerprints:
+                      - 'c0:b6:0a:00:a2:14:04:be:69:80:67:59:64:8f:d7:46'
             - npm install
     deploy:
         machine:
