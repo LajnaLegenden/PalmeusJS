@@ -1,32 +1,32 @@
 version: 2.1
 orbs:
-  node: circleci/node@1.1.6
+    node: circleci/node@1.1.6
 jobs:
     deploy-job:
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "c0:b6:0a:00:a2:14:04:be:69:80:67:59:64:8f:d7:46"
-  build-and-test:
-    executor:
-      name: node/default
-    steps:
-      - checkout
-      - node/with-cache:
-          steps:
-            - run: npm install
-   deploy:
-    executor:
-      name: node/default
-    steps:
-      - checkout
-      - node/with-cache:
-          steps:
-            - run: echo "Deploying"
-            - run: npm test
+        - add_ssh_keys:
+              fingerprints:
+                  - 'c0:b6:0a:00:a2:14:04:be:69:80:67:59:64:8f:d7:46'
+    build-and-test:
+        executor:
+            name: node/default
+        steps:
+            - checkout
+            - node/with-cache:
+                  steps:
+                      - run: npm install
+    deploy:
+        executor:
+            name: node/default
+        steps:
+            - checkout
+            - node/with-cache:
+                  steps:
+                      - run: echo "Deploying"
+                      - run: npm test
 workflows:
     build-and-deploy:
-      jobs:
-        - add_ssh_keys
-        - build-and-test
-        - deploy
+        jobs:
+            - add_ssh_keys
+            - build-and-test
+            - deploy
