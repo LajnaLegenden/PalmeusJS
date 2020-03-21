@@ -1,35 +1,19 @@
-version: 2
+version: 2.1
+orbs:
+    node: circleci/node@1.1.6
 
 jobs:
-    build:
-        executor:
-            name: node/default
-            tag: "10.4"
-        steps:
-            - checkout
-            - node/with-cache:
-                  steps:
-                      - run: npm install
-        deploy:
-            machine:
-                enabled: true
-            steps:
-                - add_ssh_keys:
-                      fingerprints:
-                          - "c0:b6:0a:00:a2:14:04:be:69:80:67:59:64:8f:d7:46"
-                - run:
-                      name: Deploy Over SSH
-                      command: |
-                          ssh $SSH_USER@$SSH_HOST "git clone git@github.com:LajnaLegenden/PalmeusJS.git; cd PalmeusJS;npm run deploy"
+  deploy:
+    machine:
+        enabled: true
+    steps:
+        - run:
+            name: Deploy Over SSH
+                command: |
+                    ssh $SSH_USER@$SSH_HOST "git clone git@github.com:LajnaLegenden/PalmeusJS.git; cd PalmeusJS;npm run deploy"
 
 workflows:
-    version: 2
-    build-and-deploy:
-        jobs:
-            - build
-            - deploy:
-                  requires:
-                      - build # only deploy once build job has completed
-                  #  filters:
-                  #  branches:
-                  #      only: master # only deploy on the master branch
+   version: 2
+   build-and-deploy:
+    jobs:
+        - deploy
