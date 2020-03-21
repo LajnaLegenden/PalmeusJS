@@ -4,17 +4,25 @@ const fs = require('fs');
 class Mail {
     constructor(hbs) {
         this.hbs = hbs;
-        this.transport = require('nodemailer').createTransport({
-            host: "mail.bredband2.com",
-
-            "secure": true,
-            "auth": {
-                "user": process.env.EMAILUSER,
-                "pass": process.env.EMAILPASS
-            }
-        });
-
-
+        if (process.env.MODE == "dev") {
+            this.transport = require('nodemailer').createTransport({
+                host: 'localhost',
+                port: 1025,
+                auth: {
+                    user: 'project.1',
+                    pass: 'secret.1'
+                }
+            });
+        } else {
+            this.transport = require('nodemailer').createTransport({
+                host: "mail.bredband2.com",
+                "secure": true,
+                "auth": {
+                    "user": process.env.EMAILUSER,
+                    "pass": process.env.EMAILPASS
+                }
+            });
+        }
     }
 
     async send(email, subject, body) {

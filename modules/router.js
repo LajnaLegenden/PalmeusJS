@@ -15,7 +15,6 @@ module.exports = (app, hbs) => {
             res.locals.isSiteAdmin = (await Storage.getSiteAdmin(req.session.user)).length ? true : false;
             res.locals.isTeamManager = (await Storage.getTeamManger(req.session.user)).length ? true : false;
         }
-        console.log(res.locals)
         next()
     })
 
@@ -64,7 +63,6 @@ module.exports = (app, hbs) => {
     });
 
     app.post('/signup', validate, async (req, res) => {
-        (req.body)
         let doStuff = true;
         let err = {};
         let fName = req.body.fName;
@@ -97,7 +95,13 @@ module.exports = (app, hbs) => {
             let id = await Storage.createNewUser(username, password1, fName, lName, email);
             if (id != undefined)
                 req.session.user = username;
-            res.redirect('/');
+            if (req.session.returnUrl != undefined) {
+                let url = req.session.returnUrl;
+                req.session.returnUrl = undefined;
+                res.redirect(url);
+            } else {
+                res.redirect('/');
+            }
         } else {
             (err);
             res.render('signup', { title: 'Sign up', err, data: req.body });
@@ -112,9 +116,10 @@ module.exports = (app, hbs) => {
     //Teams
     app.get('/teams', auth, async (req, res) => {
         console.time("teams")
+        let user = await Storage.getUserByUsername(req.session.user);
         let managedTeams = await Storage.getManagedTeamsByUsername(req.session.user);
         let joinedTeams = await Storage.getTeamsByUsername(req.session.user);
-        let invites = await Storage.getTeamInvitesForUser(req.session.user);
+        let invites = await Storage.getTeamInvitesForUser(user.username, user.email);
         let noOfInvites = invites.length;
         let noTeam = true
         //TODO ReWRITE this
@@ -150,7 +155,7 @@ module.exports = (app, hbs) => {
             managedTeams[i].going = (await Storage.getAllGoingPlayers(managedTeams[i].id)).length;
         }
 
-        if (managedTeams != "" || joinedTeams != "") {
+        if (managedTeams != "" || joinedTeams != "" || invites.length != 0) {
             noTeam = false;
         }
         console.timeEnd("teams")
@@ -347,16 +352,20 @@ module.exports = (app, hbs) => {
     app.get('/acceptInvite/:id', auth, async (req, res) => {
         let inviteID = req.params.id;
         let invite = (await Storage.getInvite(inviteID))[0];
-
-        if (invite) {
-            let team = await Storage.getTeamById(invite.team);
-            let fromUser = await Storage.getUserByUsername(invite.fromUserID);
-
-            res.render('acceptInvite', { invite, inviteID, team, fromUser })
-        } else {
-            res.redirect('/')
+        let user = await Storage.getUserByUsername(req.session.user);
+        console.log(user.email, invite.toEmailOrUsername, user.username)
+        if (user.email == invite.toEmailOrUsername || user.username == invite.toEmailOrUsername) {
+            if (invite) {
+                let team = await Storage.getTeamById(invite.team);
+                let fromUser = await Storage.getUserByUsername(invite.fromUserID);
+                res.render('acceptInvite', { invite, inviteID, team, fromUser })
+                return;
+            } else {
+                res.redirect('/')
+                return;
+            }
         }
-
+        res.redirect('/');
     });
 
     app.post('/acceptInvite/:id', auth, async (req, res) => {

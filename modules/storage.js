@@ -23,7 +23,7 @@ const addEmailInvite = `INSERT INTO invite (toEmailOrUsername,elo,position,id,fr
 const addUsernameInvite = `INSERT INTO invite (toEmailOrUsername,elo,position,id,fromUserID,team,typeOfInvite) VALUES (?,?,?,?,?,?,?)`
 const joinTeam = `INSERT INTO members (userID,teamID,elo,priority,attendance,position) VALUES (?,?,?,?,?,?)`
 const getInvite = `SELECT * FROM invite WHERE id = ?`;
-const getTeamInvitesForUser = `SELECT * FROM invite where toEmailOrUsername = ? and typeOfInvite = "USERNAME"`
+const getTeamInvitesForUser = `SELECT * FROM invite where toEmailOrUsername = ?`
 const removeInvite = `DELETE FROM invite WHERE id = ?`;
 const getPlayers = `SELECT * FROM members JOIN users on members.userID = users.id WHERE members.teamID = ?`
 const getUserByEmail = `SELECT * FROM users WHERE email = ?`;
@@ -122,26 +122,26 @@ class Database {
         }
     }
 
-async deleteUser(id){
-    //To delete
-/*
-admin
-invite on from id and to
-members userID
-squad userid
-status userid
-give team owndershit do someone else in the list from teams
-last users
-*/
-const deleteFromAdmin = `DELETE FROM admin WHERE userID = ?`
-const deleteFromInvites = `DELETE FROM invite WHERE fromUserID = ?`
+    async deleteUser(id) {
+        //To delete
+        /*
+        admin
+        invite on from id and to
+        members userID
+        squad userid
+        status userid
+        give team owndershit do someone else in the list from teams
+        last users
+        */
+        const deleteFromAdmin = `DELETE FROM admin WHERE userID = ?`
+        const deleteFromInvites = `DELETE FROM invite WHERE fromUserID = ?`
 
 
 
 
 
 
-}
+    }
 
 
     async createTeam(nameOfEvent, description, location, timeOfDay, dayOfWeek, dayOfWeekAsNumber, admin, priceSingle, priceMultiple, maxplayers) {
@@ -204,12 +204,14 @@ const deleteFromInvites = `DELETE FROM invite WHERE fromUserID = ?`
         return token;
     }
 
-    async getTeamInvitesForUser(username) {
+    async getTeamInvitesForUser(username, email) {
         let teams = await mysql.queryP(getTeamInvitesForUser, username);
+        teams = [... await mysql.queryP(getTeamInvitesForUser, email)]
         for (let i in teams) {
             let teamData = (await mysql.queryP(getTeamByID, teams[i].team))[0]
             teams[i].teamData = teamData;
         }
+        console.log(teams)
         return teams;
     }
 

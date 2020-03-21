@@ -93,21 +93,17 @@
                             <th scope="col">Name</th>
                             <th scope="col">Time</th>
                             <th scope="col">Day</th>
-                            <th scope="col">Team ID</th>
-                            <th scope="col">Invite ID</th>
                             <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {{#each invites}}
                         <tr>
-                            <td>{{this.fromUser}}</td>
+                            <td>{{this.fromUserID}}</td>
                             <td>{{this.teamData.name}}</td>
             </div>
             <td>{{this.teamData.time}}</td>
             <td>{{this.teamData.dayOfTheWeek}}</td>
-            <td>{{this.team}}</td>
-            <td>{{this.id}}</td>
             <td>
                 <div class="inline">
                     <form action="/acceptInvite/{{this.id}}" method="post"><button
