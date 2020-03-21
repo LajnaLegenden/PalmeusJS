@@ -3,13 +3,14 @@
 //CHANGE FROM USERNAME TO ID IN REST OF CODE
 const mysql = require("./mysql");
 const bcrypt = require('bcryptjs');
+const _ = require('lodash')
 
-const getAllUsers = 'SELECT * FROM users';
+const getAllUsers = 'SELECT * FROM users ORDER BY admin,teamManager,id';
 const createNewUser = `INSERT INTO users (firstName,lastName,username,email,password,id) VALUES (?,?,?,?,?,?)`;
 const verifyUsername = `SELECT * FROM users WHERE username = ?`;
 const getUserByID = `SELECT * FROM users WHERE id = ?`;
 const getManagedTeamsByUsername = `SELECT * FROM teams WHERE creatorID = ?`;
-const getTeamsByID = `SELECT * FROM members WHERE userID = ?`;
+const getTeamsByID = `SELECT * FROM members WHERE userID = ? ORDER BY ID`;
 
 //Team
 const addTeam = `INSERT INTO teams (name,id,description,location,time,dayOfTheWeek,creatorID,priceSingle,priceWhole,maxplayers,nextEvent) VALUES (?,?,?,?,?,?,?,?,?,?,?)`
@@ -37,24 +38,41 @@ const getAllGoingPlayers = `SELECT * FROM status WHERE teamID = ? AND response =
 const getAllTeams = `SELECT * FROM teams`;
 const getUserIdFromUsername = `SELECT id FROM users WHERE username = ?`
 const updateElo = `UPDATE members SET elo = ? WHERE userID = ? AND teamID = ?`
-const resetTeamSquad = `DELETE FROM squad WHERE teamID = `
+const resetTeamSquad = `DELETE FROM squad WHERE teamID = ?`
+
+const getTeamSize = `SELECT COUNT(userID) AS size FROM PJS_DEVELOP.members WHERE teamID = ?`
+
+
 //Leave Team
 const deleteFromStatus = `DELETE FROM status WHERE userID = ? and teamID = ?`
 const deleteFromSquad = `DELETE FROM squad WHERE userID = ? AND teamID = ?`
 const deleteFromMember = `DELETE FROM members WHERE userID = ? and teamID = ?`
 
+const getSiteAdmin = `SELECT admin FROM users WHERE id = ? AND admin = 1`
+const getTeamManager = `SELECT teamManager FROM users WHERE id = ? AND teamManager = 1`
+
+const setPremissionStatusAdmin = `UPDATE users SET admin = ? WHERE id = ?`
+const setPremissionStatusTeamManager = `UPDATE users SET teamManager = ? WHERE id = ?`
+
+const getAllEmails = `SELECT * FROM mail`;
+const saveEmail = `INSERT INTO mail (response,email,html,subject) VALUES (?,?,?,?)`;
+const getEmail = `SELECT * FROM mail WHERE id = ?`;
+
 class Database {
     //User functions
     async getUserByUsername(username) {
+
         let userID = await this.getUserIdFromUsername(username);
 
         let res = await mysql.queryP(getUserByID, userID);
 
         return res[0];
     }
+
     async resetTeamSquad(teamID) {
         await mysql.queryP(deleteSquad, teamID);
     }
+
     async getUserByID(id) {
         let res = await mysql.queryP(getUserByID, id);
         return res[0];
@@ -76,10 +94,15 @@ class Database {
         return id;
     }
 
+    async getAllUsers() {
+        return (await mysql.queryP(getAllUsers)).reverse();
+    }
+
     async updateElo(userID, teamID, newElo) {
         newElo = Math.floor(newElo);
         mysql.queryP(updateElo, [newElo, userID, teamID]);
     }
+
     async verifyUser(username, password) {
         let user = (await this.getUserByUsername(username));
         if (user)
@@ -87,12 +110,39 @@ class Database {
         else
             return false;
     }
+
     async getUserIdFromUsername(username) {
-
-        let res = await mysql.queryP(getUserIdFromUsername, username);
-
-        return res[0].id;
+        let res;
+        try {
+            res = await mysql.queryP(getUserIdFromUsername, username);
+        } catch (e) {
+            console.log(e)
+        } finally {
+            return res[0].id;
+        }
     }
+
+async deleteUser(id){
+    //To delete
+/*
+admin
+invite on from id and to
+members userID
+squad userid
+status userid
+give team owndershit do someone else in the list from teams
+last users
+*/
+const deleteFromAdmin = `DELETE FROM admin WHERE userID = ?`
+const deleteFromInvites = `DELETE FROM invite WHERE fromUserID = ?`
+
+
+
+
+
+
+}
+
 
     async createTeam(nameOfEvent, description, location, timeOfDay, dayOfWeek, dayOfWeekAsNumber, admin, priceSingle, priceMultiple, maxplayers) {
         let id = getNewId();
@@ -141,6 +191,7 @@ class Database {
     async isRealUsername(username) {
         return (await mysql.queryP(isRealUsername, username)).length ? true : false;
     }
+
     async inviteByUsername(username, elo, pos, from, team, token) {
         from = await this.getUserIdFromUsername(from);
         let stmt = await mysql.queryP(addUsernameInvite, [username, elo, pos, token, from, team, "USERNAME"]);
@@ -172,14 +223,17 @@ class Database {
             await mysql.queryP(removeInvite, id);
         }
     }
+
     async getUserByEmail(email) {
         return await mysql.queryP(getUserByEmail, email);
     }
 
-    async getPlayers(id) {
+    async getPlayers(id, length = false) {
         let res = await mysql.queryP(getPlayers, id);
+        if (length) return res.length
         return res;
     }
+
     async getInvite(id) {
         return await mysql.queryP(getInvite, id);
     }
@@ -202,6 +256,7 @@ class Database {
                 await mysql.queryP(addToSquad, [team[i].userID, teamNumber, teamID]);
             }
         }
+
         return "OK";
     }
 
@@ -237,13 +292,17 @@ class Database {
         await mysql.queryP(changeStatus, [teamID, cID, status]);
         return await this.getStatusForTeam(teamID, username);
     }
-    async getAllGoingPlayers(teamID) {
-        return await mysql.queryP(getAllGoingPlayers, [teamID, "Going"]);
+
+    async getAllGoingPlayers(teamID, length = false) {
+        let res = await mysql.queryP(getAllGoingPlayers, [teamID, "Going"]);
+        if (length) return res.length;
+        return res;
     }
 
     async getAllTeams() {
         return await mysql.queryP(getAllTeams);
     }
+
     async leaveTeam(username, teamID) {
         let cID = await this.getUserIdFromUsername(username);
         //Dont allow if admin  for now
@@ -256,8 +315,51 @@ class Database {
             mysql.queryP(deleteFromMember, [cID, teamID])
             return "OK";
         }
+
+
     }
 
+    async getSiteAdmin(user) {
+        let id = await this.getUserIdFromUsername(user);
+        return await mysql.queryP(getSiteAdmin, id);
+    }
+
+    async getTeamManger(user) {
+        let id = await this.getUserIdFromUsername(user);
+        return await mysql.queryP(getTeamManager, id);
+    }
+
+    async setPremissionStatus(prem, val, userID) {
+        let n = null;
+        if (val == "true") n = 1
+        console.log(n)
+        switch (prem) {
+            case "admin":
+                return await mysql.queryP(setPremissionStatusAdmin, [n, userID])
+            case "teamManager":
+                return await mysql.queryP(setPremissionStatusTeamManager, [n, userID])
+        }
+    }
+
+    async saveEmail(res, to, subject, body) {
+        await mysql.queryP(saveEmail, [res, to, body, subject]);
+    }
+
+    async getAllEmails() {
+        let fromDb = await mysql.queryP(getAllEmails);
+        let out = new Array();
+        for (let mail of fromDb) {
+            let tmp = mail;
+            tmp.response = JSON.parse(tmp.response);
+            out.push(tmp);
+        }
+        return out;
+    }
+    async getEmail(id) {
+        let res = await mysql.queryP(getEmail, id);
+        if (res.length == 0) return { html: "<h1>Email not found</h1>" }
+        return res[0];
+    }
 }
 
 function getNewId() {

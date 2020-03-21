@@ -1,0 +1,17 @@
+.red:hover {
+    color: red
+}
+
+.yellow:hover {
+    color: var(--warning)
+}
+
+.hover {
+    color: black;
+    transition: 100ms ease-in-out;
+}
+
+.form-check {
+    display: flex;
+    justify-content: center;
+}

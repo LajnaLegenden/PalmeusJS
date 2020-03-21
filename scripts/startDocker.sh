@@ -1,1 +1,1 @@
-docker run  -d --network host   -p 3000:3000/tcp palmeusjs:latest
+docker run  -d --network host palmeusjs:latest

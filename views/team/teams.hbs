@@ -1,16 +1,16 @@
 <main class="container">
-    <a href="/team/create"><i class="far fa-plus-square"></i></a>
+
     <main class="container">
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                {{#if managedTeams}}
-                <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#managedTeams" role="tab"
-                    aria-controls="nav-home" aria-selected="true">Managed Teams</a>
-                {{/if}}
                 {{#if joinedTeams}}
-                <a class="nav-item nav-link {{#unless managedTeams}}active{{/unless}}" id="nav-profile-tab"
-                    data-toggle="tab" href="#joinedTeams" role="tab" aria-controls="nav-profile"
-                    aria-selected="false">Joined Teams</a>
+                <a class="nav-item nav-link active" id="nav-profile-tab" data-toggle="tab" href="#joinedTeams"
+                    role="tab" aria-controls="nav-profile" aria-selected="false">Joined Teams</a>
+                {{/if}}
+                {{#if managedTeams}}
+                <a class="nav-item nav-link {{#unless joinedTeams}}active{{/unless}}" id="nav-home-tab"
+                    data-toggle="tab" href="#managedTeams" role="tab" aria-controls="nav-home"
+                    aria-selected="true">Managed Teams</a>
                 {{/if}}
                 {{#if invites}}
                 <a class="nav-item nav-link {{#unless managedTeams}}{{#unless joinedTeams}}active{{/unless}}{{/unless}}"
@@ -23,39 +23,7 @@
         <div class="noTeam">Join a team</div>
         {{/if}}
         <div class="tab-content" id="nav-tabContent">
-            <div class="tab-pane fade {{#if managedTeams}} show active{{/if}}" id="managedTeams" role="tabpanel"
-                aria-labelledby="nav-home-tab">
-                {{#if managedTeams}}
-                <table class="table table-borderless">
-                    <thead>
-                        <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Time</th>
-                            <th scope="col">Day</th>
-                            <th scope="col">Going</th>
-                            <th scope="col">ID</th>
-                            <th scope="col">Options</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{#each managedTeams}}
-                        <tr>
-                            <td><a href="/team/{{this.id}}/manage">{{this.name}}</a></td>
-                            <td>{{this.description}}</td>
-                            <td>{{this.time}}</td>
-                            <td>{{this.dayOfTheWeek}}</td>
-                            <td>{{this.going}}/{{this.size}}</td>
-                            <td>{{this.id}}</td>
-                            <td>ADMIN</td>
-                        </tr>
-                        {{/each}}
-                    </tbody>
-                </table>
-
-                {{/if}}
-            </div>
-            <div class="tab-pane fade {{#unless managedTeams}}show active{{/unless}}" id="joinedTeams" role="tabpanel"
+            <div class="tab-pane fade {{#if joinedTeams}}show active{{/if}}" id="joinedTeams" role="tabpanel"
                 aria-labelledby="nav-profile-tab">
                 {{#if joinedTeams}}
                 <table class="table table-borderless">
@@ -87,6 +55,35 @@
                     </tbody>
                 </table>
                 {{/if}}</div>
+            <div class="tab-pane fade {{#unless joinedTeams}} show active{{/unless}}" id="managedTeams" role="tabpanel"
+                aria-labelledby="nav-home-tab">
+                {{#if managedTeams}}
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Day</th>
+                            <th scope="col">Going</th>
+                            <th scope="col">Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each managedTeams}}
+                        <tr>
+                            <td><a href="/team/{{this.id}}/manage">{{this.name}}</a></td>
+                            <td>{{this.description}}</td>
+                            <td>{{this.time}}</td>
+                            <td>{{this.dayOfTheWeek}}</td>
+                            <td>{{this.going}}/{{this.size}}</td>
+                            <td>ADMIN</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+                {{/if}}
+            </div>
             <div class="tab-pane fade {{#unless managedTeams}}{{#unless joinedTeams}}show active{{/unless}}{{/unless}}"
                 id="invites" role="tabpanel" aria-labelledby="nav-contact-tab">{{#if invites}}
                 <table class="table table-borderless">
@@ -129,5 +126,6 @@
             {{/if}}
         </div>
         </div>
+        {{#if isTeamManager}}<a href="/team/create"><button class="btn btn-primary">Create Team</button></a>{{/if}}
     </main>
     <script src="/public/js/teams.js" defer></script>
