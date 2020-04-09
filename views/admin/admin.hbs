@@ -1,0 +1,95 @@
+<link rel="stylesheet" href="/public/css/admin.css">
+<main class="container">
+    <main class="container">
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <a class="nav-item nav-link active" id="nav-contact-tab" data-toggle="tab" href="#users" role="tab"
+                    aria-controls="nav-contact" aria-selected="false">Users</a>
+                <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#emails" role="tab"
+                    aria-controls="nav-contact" aria-selected="false">Emails</a>
+            </div>
+        </nav>
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="nav-contact-tab">
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th scope="col">Username</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">E-mail</th>
+                            <th scope="col">Admin</th>
+                            <th scope="col">Team Manager</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each users}}
+                        <tr>
+                            <td>{{this.username}}</td>
+                            <td>{{this.id}}</td>
+                            <td>{{this.firstName}} {{his.lastName}}</td>
+                            <td>{{this.email}}</td>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input adminCheck" id="{{this.id}}" type="checkbox"
+                                        {{#if this.admin}}checked{{/if}}>
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input teamManagerCheck" type="checkbox"
+                                        {{#if this.teamManager}}checked{{/if}} id="{{this.id}}" value="">
+                                    </label>
+                                </div>
+                            </td>
+
+                            <td style="text-align: center;">
+                                <i data-id="{{this.id}}" data-toggle="modal" data-target=".bd-example-modal-sm"
+                                    data-toggle="tooltip" data-placement="top" title="Delete User"
+                                    class="fa fa-trash deleteUser hover red" aria-hidden="true"></i>
+                                <i data-toggle="tooltip" data-placement="top" title="Change Info"
+                                    class="fa fa-pen hover yellow" aria-hidden="true"></i>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade show" id="emails" role="tabpanel" aria-labelledby="nav-contact-tab">
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">To</th>
+                            <th scope="col">Subject</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each emails}}
+                        <tr>
+                            <td><a href="/admin/viewMail/{{this.id}}">{{this.id}}</a></td>
+                            <td>{{this.email}}</td>
+                            <td>{{this.subject}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    {{!-- MODAL --}}
+    <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="deleteUser"
+        aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <form action="/admin/deleteUser">
+                    <input type="hidden" id="deleteUserId">
+                    <button style="width: 100%;" class="btn btn-danger">Delete User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/public/js/admin.js" defer></script>
