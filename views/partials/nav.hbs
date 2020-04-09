@@ -9,10 +9,12 @@
             <div class="navbar-nav">
                 <a class="nav-item nav-link" href="/">Home</a>
                 <a class="nav-item nav-link" href="/teams">Teams</a>
+                {{#if isSiteAdmin}}<a class="nav-item nav-link" href="/admin">Admin</a>
+                {{/if}}
             </div>
             <div class="navbar-nav ml-auto">
-                {{#if loggedIn}}
-                <a class="nav-item nav-link right" href="/user/{{loggedIn}}">{{loggedIn}}</a>
+                {{#if myUsername}}
+                <a class="nav-item nav-link right" href="/user/{{myUsername}}">{{myUsername}}</a>
                 <a class="nav-item nav-link right" href="/signout">Sign out</a>
                 {{else}}
                 <a class="nav-item nav-link right" href="/signin">Sign in</a>

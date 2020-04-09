@@ -11,9 +11,12 @@ COPY package*.json ./
 RUN npm install
 # If you are building your code for production
 # RUN npm ci --only=production
+RUN npm install pm2 -g
+ENV PM2_PUBLIC_KEY rpi4g48sm056m0i
+ENV PM2_SECRET_KEY ckyi0d5qif4kpuw
 
 # Bundle app source
 COPY . .
 
 EXPOSE 3000
-CMD ["node", "app.js"]
+CMD ["pm2-runtime", "app.js", "--name", "Palmeus JS"]

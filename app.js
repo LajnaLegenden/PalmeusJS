@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const hbs = require('hbs');
 const fs = require('fs');
+const back = require('express-back');
 
 const port = process.env.PORT;
 
@@ -36,6 +37,9 @@ app.use(express.json());
 app.use(cookieSession({
     secret: process.env.SECRET
 }));
+
+app.use(back());
+
 app.use(bodyParser.urlencoded({ extended: true }));
 //Use router
 router(app, hbs.handlebars);

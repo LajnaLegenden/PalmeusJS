@@ -8,6 +8,7 @@ const updateTime = `UPDATE teams SET nextEvent = ? WHERE id = ?`
 
 class Scheduler {
     constructor(interval) {
+        console.log("Starting Scheduler")
         this.eventEmitter = new events.EventEmitter();
         this.updateTeams();
 
