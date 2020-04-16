@@ -1,1 +1,1 @@
-docker build git@github.com:LajnaLegenden/PalmeusJS.git#master -t palmeusjs:latest
+docker build . -t palmeusjs:latest
