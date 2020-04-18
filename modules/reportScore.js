@@ -79,6 +79,7 @@ function getOdds(elo1, elo2) {
 }
 
 async function deleteTeams(teamID) {
+    console.log
     await Storage.resetTeamSquad(teamID);
 }
 

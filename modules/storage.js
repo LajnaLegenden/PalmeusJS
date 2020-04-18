@@ -39,6 +39,8 @@ const getAllTeams = `SELECT * FROM teams`;
 const getUserIdFromUsername = `SELECT id FROM users WHERE username = ?`
 const updateElo = `UPDATE members SET elo = ? WHERE userID = ? AND teamID = ?`
 const resetTeamSquad = `DELETE FROM squad WHERE teamID = ?`
+const isTeamAdmin = `SELECT * FROM admin WHERE userID = ? AND teamID = ?`
+const deleteStatus = `DELETE FROM status WHERE teamID = ?`
 
 const getTeamSize = `SELECT COUNT(userID) AS size FROM PJS_DEVELOP.members WHERE teamID = ?`
 
@@ -71,6 +73,7 @@ class Database {
 
     async resetTeamSquad(teamID) {
         await mysql.queryP(deleteSquad, teamID);
+        await mysql.queryP(deleteStatus, teamID);
     }
 
     async getUserByID(id) {
@@ -361,6 +364,10 @@ class Database {
         let res = await mysql.queryP(getEmail, id);
         if (res.length == 0) return { html: "<h1>Email not found</h1>" }
         return res[0];
+    }
+
+    async isTeamAdmin(userID, teamID) {
+        return (await mysql.queryP(isTeamAdmin, [userID, teamID]))
     }
 }
 

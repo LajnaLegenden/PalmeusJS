@@ -14,7 +14,10 @@ module.exports = (app, hbs) => {
         if (req.session.user) {
             res.locals.isSiteAdmin = (await Storage.getSiteAdmin(req.session.user)).length ? true : false;
             res.locals.isTeamManager = (await Storage.getTeamManger(req.session.user)).length ? true : false;
+            res.locals.isTeamAdmin = (await Storage.isTeamAdmin(await Storage.getUserIdFromUsername(req.session.user), req.url.split("/")[2])).length ? true : false
+            res.locals.teamID = req.url.split("/")[2] || undefined
         }
+        console.log(res.locals)
         next()
     })
 
@@ -351,7 +354,9 @@ module.exports = (app, hbs) => {
     //Accpet invite
     app.get('/acceptInvite/:id', auth, async (req, res) => {
         let inviteID = req.params.id;
-        let invite = (await Storage.getInvite(inviteID))[0];
+        let invite = await Storage.getInvite(inviteID);
+        if (invite.length == 0) res.redirect('/')
+        invite = invite[0]
         let user = await Storage.getUserByUsername(req.session.user);
         console.log(user.email, invite.toEmailOrUsername, user.username)
         if (user.email == invite.toEmailOrUsername || user.username == invite.toEmailOrUsername) {
@@ -445,7 +450,6 @@ module.exports = (app, hbs) => {
     app.post('/user/:id/setAdmin', siteAdminAuth, async (req, res) => {
         console.log("Got data", req.body, req.params.id)
         await Storage.setPremissionStatus("admin", req.body.val, req.params.id)
-
         res.send("OK")
     });
 

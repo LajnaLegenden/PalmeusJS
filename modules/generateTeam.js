@@ -4,7 +4,7 @@ const Storage = require('./storage');
 let skillTolorance = 0.2;
 let positionDiffrance = 1;
 const tolorance = 150;
-const debug = true;
+const debug = false;
 
 let players, totalPlayers, team1Length, team1, team2, team1Odds, team2Odds, team1Elo, team2Elo;
 

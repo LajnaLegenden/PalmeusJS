@@ -1,7 +1,21 @@
 <main class="container">
     <h2 class="box">Teams</h2>
-
-
+    {{#if isTeamAdmin}}
+    {{#if showTeam}}
+    <div class="reportScore">
+        <form action="/team/{{{teamID}}}/report" method="post">
+            <div class="form-group">
+                <h4>Report score</h4>
+                <select class="form-control" name="score" id="report">
+                    <option>Team 1 won</option>
+                    <option selected>Draw</option>
+                    <option>Team 2 won</option>
+                </select>
+            </div>
+            <button class="btn btn-primary">Submit score</button>
+        </form>
+    </div>
+    {{/if}}{{/if}}
     {{#if showTeam}}
     <div class="devider box">
 
@@ -57,6 +71,7 @@
     {{#unless showTeam}}
     <p>Click below to generate a team</p>
     {{/unless}}
+
     <form action="/team/{{{teamid}}}/getTeam">
         <button type="submit" class="btn btn-primary">Click to generate a team</button>
     </form>
