@@ -41,6 +41,7 @@ const updateElo = `UPDATE members SET elo = ? WHERE userID = ? AND teamID = ?`
 const resetTeamSquad = `DELETE FROM squad WHERE teamID = ?`
 const isTeamAdmin = `SELECT * FROM admin WHERE userID = ? AND teamID = ?`
 const deleteStatus = `DELETE FROM status WHERE teamID = ?`
+const getPendingInvites = `SELECT * FROM invite WHERE team = ?`
 
 const getTeamSize = `SELECT COUNT(userID) AS size FROM PJS_DEVELOP.members WHERE teamID = ?`
 
@@ -300,7 +301,7 @@ class Database {
 
     async getAllGoingPlayers(teamID, length = false) {
         let res = await mysql.queryP(getAllGoingPlayers, [teamID, "Going"]);
-        if (length) return res.length;
+        console.log(res, "asdihasjkdhk")
         return res;
     }
 
@@ -368,6 +369,10 @@ class Database {
 
     async isTeamAdmin(userID, teamID) {
         return (await mysql.queryP(isTeamAdmin, [userID, teamID]))
+    }
+
+    async getPendingInvites(teamID) {
+        return (await mysql.queryP(getPendingInvites, teamID));
     }
 }
 

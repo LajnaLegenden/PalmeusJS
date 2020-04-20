@@ -280,7 +280,7 @@ module.exports = (app, hbs) => {
         else {
 
             let team = await Storage.getTeamById(id);
-            res.render('team/teamInvite', { title: team.name, team: team })
+            res.render('team/teamInvite', { title: team.name, team: team, invites: await Storage.getPendingInvites(req.params.id) })
         }
 
     });
@@ -358,19 +358,23 @@ module.exports = (app, hbs) => {
         if (invite.length == 0) res.redirect('/')
         invite = invite[0]
         let user = await Storage.getUserByUsername(req.session.user);
-        console.log(user.email, invite.toEmailOrUsername, user.username)
+        console.log("asdadsd")
         if (user.email == invite.toEmailOrUsername || user.username == invite.toEmailOrUsername) {
+            console.log("asdadsd")
             if (invite) {
                 let team = await Storage.getTeamById(invite.team);
                 let fromUser = await Storage.getUserByUsername(invite.fromUserID);
                 res.render('acceptInvite', { invite, inviteID, team, fromUser })
                 return;
             } else {
-                res.redirect('/')
+                console.log("Not for him")
+                res.render('index', { title: 'PalmeusJS', err: "This invite was not ment for this email adress or username" })
                 return;
             }
         }
-        res.redirect('/');
+        console.log("Not for him")
+        res.render('index', { title: 'PalmeusJS', err: "This invite was not ment for this email adress or username. (Is the email the same as the one reciving the invite?)" })
+        return;
     });
 
     app.post('/acceptInvite/:id', auth, async (req, res) => {

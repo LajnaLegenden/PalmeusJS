@@ -12,7 +12,7 @@
             </div>
             <div class="info">
                 <script>let time = new Date({{{ team.nextEvent }}});</script>
-                <h6>Time to event: <span id="countDown"></span> </h5>
+                <h6 style="display: none;">Time to event: <span id="countDown"></span> </h5>
                     <h6>Time: {{team.time}}</h6>
                     <h6>Day: {{team.dayOfTheWeek}}</h6>
 
@@ -64,7 +64,6 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">Elo</th>
                                 <th scope="col">Recomended Pos</th>
                             </tr>
                         </thead>
@@ -73,7 +72,6 @@
                             <tr>
                                 <th scope="row">{{{add @index}}}</th>
                                 <td>{{{this.name}}}</td>
-                                <td>{{{this.elo}}}</td>
                                 <td>{{{this.position}}}</td>
                             </tr>
                             {{/each}}

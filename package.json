@@ -4,8 +4,8 @@
   "description": "Hockey booking system with webworkers",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "start": "node app.js",
     "decrypt": "node tools/crypto true",
     "encrypt": "node tools/crypto false"
   },

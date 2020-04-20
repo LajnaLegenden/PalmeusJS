@@ -30,4 +30,28 @@
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
+
+
+    <table class="table table-borderless">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">To</th>
+                <th scope="col">Type</th>
+                <th scope="col">Pos</th>
+                <th scope="col">Elo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each invites}}
+            <tr>
+                <th scope="row">{{{add @index}}}</th>
+                <td>{{{this.toEmailOrUsername}}}</td>
+                <td>{{{this.typeOfInvite}}}</td>
+                <td>{{{this.elo}}}</td>
+                <td>{{{this.position}}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
 </main>

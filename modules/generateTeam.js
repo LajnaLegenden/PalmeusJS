@@ -4,7 +4,7 @@ const Storage = require('./storage');
 let skillTolorance = 0.2;
 let positionDiffrance = 1;
 const tolorance = 150;
-const debug = false;
+const debug = true;
 
 let players, totalPlayers, team1Length, team1, team2, team1Odds, team2Odds, team1Elo, team2Elo;
 
@@ -14,8 +14,10 @@ module.exports = async function (teamID) {
         players = await Storage.getPlayers(teamID);
     } else {
         players = await Storage.getAllGoingPlayers(teamID);
+        console.log("players", players)
         for (let i in players) {
-            players[i] = await Storage.getTeamDataForPlayer(teamID, players[i].username);
+            console.log(players[i])
+            players[i] = await Storage.getTeamDataForPlayer(teamID, players[i].userID);
         }
     }
 
@@ -25,76 +27,88 @@ module.exports = async function (teamID) {
 
     team1 = [];
     team2 = [];
-    await generateTeam(players);
+    try {
+        console.log(30, players)
+        await generateTeam(players);
+        await Storage.saveTeam(teamID, { team1, team2 });
 
-    await Storage.saveTeam(teamID, { team1, team2 });
+    } catch (error) {
+        return error
+    }
     return team1Odds;
 }
 
 async function generateTeam(players) {
-    team1 = [];
-    team2 = []
-    players = shuffle(players);
-    for (let i in players) {
-        console.log(players[i]);
-        let profile = await Storage.getUserByID(players[i].userID);
-        players[i].name = `${profile.firstName} ${profile.lastName}`
-        if (i < team1Length)
-            team1.push(players[i]);
-        else {
-            team2.push(players[i]);
+    try {
+        team1 = [];
+        team2 = []
+        console.log(42, players)
+        players = shuffle(players);
+        console.log(44, players)
+        for (let i in players) {
+            console.log(players[i]);
+            let profile = await Storage.getUserByID(players[i].userID);
+            players[i].name = `${profile.firstName} ${profile.lastName}`
+            if (i < team1Length)
+                team1.push(players[i]);
+            else {
+                team2.push(players[i]);
+            }
         }
-    }
 
-    //Show data 
-    let team1Fw = 0; let team1Df = 0; let team1Gl = 0;
-    let team2Fw = 0; let team2Df = 0; let team2Gl = 0;
+        //Show data 
+        let team1Fw = 0; let team1Df = 0; let team1Gl = 0;
+        let team2Fw = 0; let team2Df = 0; let team2Gl = 0;
 
-    for (let i in team1) {
-        if (team1[i].position == "FW") {
-            team1Fw++;
-        } else if (team1[i].position == "DF") {
-            team1Df++;
+        for (let i in team1) {
+            if (team1[i].position == "FW") {
+                team1Fw++;
+            } else if (team1[i].position == "DF") {
+                team1Df++;
+            } else {
+                team1Gl++;
+            }
+        }
+
+        for (let i in team2) {
+            if (team2[i].position == "FW") {
+                team2Fw++;
+            } else if (team2[i].position == "DF") {
+                team2Df++;
+            } else {
+                team2Gl++;
+            }
+        }
+
+        team1Elo = getElo(team1) || 1000;
+        team2Elo = getElo(team2) || 1000;
+
+        team1Odds = getOdds(team1Elo, team2Elo);
+        team2Odds = 1 - team1Odds;
+
+        if (Math.abs(team1Odds - team2Odds) < skillTolorance) {
+            let invalid = true;
+            if (Math.abs(team1Df - team2Df > positionDiffrance)) {
+                invalid = false;
+                positionDiffrance += 0.1
+            } else if (Math.abs(team1Fw - team2Fw > positionDiffrance)) {
+                invalid = false;
+                positionDiffrance += 0.1
+            } else if (Math.abs(team1Gl - team2Gl > 0)) {
+                invalid = false;
+            }
+            if (!invalid) {
+                return await generateTeam(players);
+            } else {
+                return;
+            }
         } else {
-            team1Gl++;
-        }
-    }
-
-    for (let i in team2) {
-        if (team2[i].position == "FW") {
-            team2Fw++;
-        } else if (team2[i].position == "DF") {
-            team2Df++;
-        } else {
-            team2Gl++;
-        }
-    }
-
-    team1Elo = getElo(team1) || 1000;
-    team2Elo = getElo(team2) || 1000;
-
-    team1Odds = getOdds(team1Elo, team2Elo);
-    team2Odds = 1 - team1Odds;
-
-    if (Math.abs(team1Odds - team2Odds) < skillTolorance) {
-        let invalid = true;
-        if (Math.abs(team1Df - team2Df > positionDiffrance)) {
-            invalid = false;
-            positionDiffrance += 0.1
-        } else if (Math.abs(team1Fw - team2Fw > positionDiffrance)) {
-            invalid = false;
-            positionDiffrance += 0.1
-        } else if (Math.abs(team1Gl - team2Gl > 0)) {
-            invalid = false;
-        }
-        if (!invalid) {
+            skillTolorance += 0.01;
             return await generateTeam(players);
-        } else {
-            return;
         }
-    } else {
-        skillTolorance += 0.01;
-        return await generateTeam(players);
+    } catch (error) {
+        console.log(err)
+        throw error
     }
 }
 
