@@ -17,7 +17,6 @@ module.exports = (app, hbs) => {
             res.locals.isTeamAdmin = (await Storage.isTeamAdmin(await Storage.getUserIdFromUsername(req.session.user), req.url.split("/")[2])).length ? true : false
             res.locals.teamID = req.url.split("/")[2] || undefined
         }
-        console.log(res.locals)
         next()
     })
 
@@ -367,12 +366,10 @@ module.exports = (app, hbs) => {
                 res.render('acceptInvite', { invite, inviteID, team, fromUser })
                 return;
             } else {
-                console.log("Not for him")
                 res.render('index', { title: 'PalmeusJS', err: "This invite was not ment for this email adress or username" })
                 return;
             }
         }
-        console.log("Not for him")
         res.render('index', { title: 'PalmeusJS', err: "This invite was not ment for this email adress or username. (Is the email the same as the one reciving the invite?)" })
         return;
     });
@@ -386,7 +383,12 @@ module.exports = (app, hbs) => {
     app.get('/team/:id/getTeam', teamAuth, async (req, res) => {
         let teamid = req.params.id;
         let odds = await generateTeam(teamid);
-        res.redirect('/team/' + teamid + '/showTeam?o=' + odds)
+        if(typeof(odds) == "number"){
+            res.redirect('/team/' + teamid + '/showTeam?o=' + odds)
+        }
+        else {
+            res.render('team/showSquad', { showTeam: false, teamid: req.params.id,err:odds });
+        }
     });
 
     app.post('/team/:id/report', teamAuth, async (req, res) => {
