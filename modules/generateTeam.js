@@ -4,7 +4,7 @@ const Storage = require('./storage');
 let skillTolorance = 0.2;
 let positionDiffrance = 1;
 const tolorance = 150;
-const debug = true;
+const debug = false;
 
 let players, totalPlayers, team1Length, team1, team2, team1Odds, team2Odds, team1Elo, team2Elo;
 
@@ -28,7 +28,10 @@ module.exports = async function (teamID) {
     team1 = [];
     team2 = [];
     try {
-        console.log(30, players)
+        console.log(players.length)
+        if(players.length < 2){
+            return new Error("Need atleast 2 players to generate a team")
+        }
         await generateTeam(players);
         await Storage.saveTeam(teamID, { team1, team2 });
 
@@ -42,11 +45,8 @@ async function generateTeam(players) {
     try {
         team1 = [];
         team2 = []
-        console.log(42, players)
         players = shuffle(players);
-        console.log(44, players)
         for (let i in players) {
-            console.log(players[i]);
             let profile = await Storage.getUserByID(players[i].userID);
             players[i].name = `${profile.firstName} ${profile.lastName}`
             if (i < team1Length)
@@ -90,10 +90,10 @@ async function generateTeam(players) {
             let invalid = true;
             if (Math.abs(team1Df - team2Df > positionDiffrance)) {
                 invalid = false;
-                positionDiffrance += 0.1
+                positionDiffrance += 0.01
             } else if (Math.abs(team1Fw - team2Fw > positionDiffrance)) {
                 invalid = false;
-                positionDiffrance += 0.1
+                positionDiffrance += 0.01
             } else if (Math.abs(team1Gl - team2Gl > 0)) {
                 invalid = false;
             }
@@ -103,7 +103,7 @@ async function generateTeam(players) {
                 return;
             }
         } else {
-            skillTolorance += 0.01;
+            skillTolorance += 0.003;
             return await generateTeam(players);
         }
     } catch (error) {
