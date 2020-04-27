@@ -14,9 +14,7 @@ module.exports = async function (teamID) {
         players = await Storage.getPlayers(teamID);
     } else {
         players = await Storage.getAllGoingPlayers(teamID);
-        console.log("players", players)
         for (let i in players) {
-            console.log(players[i])
             players[i] = await Storage.getTeamDataForPlayer(teamID, players[i].userID);
         }
     }
@@ -28,7 +26,6 @@ module.exports = async function (teamID) {
     team1 = [];
     team2 = [];
     try {
-        console.log(players.length)
         if(players.length < 2){
             return new Error("Need atleast 2 players to generate a team")
         }

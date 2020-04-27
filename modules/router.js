@@ -259,7 +259,6 @@ module.exports = (app, hbs) => {
             time /= 60;
             let min = time % 60;
             let hrs = time / 60
-            console.log(members)
             for (let i in members) {
                 let data = await Storage.getUserByID(members[i].userID);
                 members[i].playerData = data;
@@ -300,7 +299,6 @@ module.exports = (app, hbs) => {
             } else {
                 inviteBy = 'Username';
             }
-            console.log(inviteBy, "typeofInvite")
 
 
             switch (inviteBy) {
@@ -357,9 +355,7 @@ module.exports = (app, hbs) => {
         if (invite.length == 0) res.redirect('/')
         invite = invite[0]
         let user = await Storage.getUserByUsername(req.session.user);
-        console.log("asdadsd")
         if (user.email == invite.toEmailOrUsername || user.username == invite.toEmailOrUsername) {
-            console.log("asdadsd")
             if (invite) {
                 let team = await Storage.getTeamById(invite.team);
                 let fromUser = await Storage.getUserByUsername(invite.fromUserID);
@@ -428,7 +424,6 @@ module.exports = (app, hbs) => {
             odds1 = undefined;
             odds2 = undefined;
         }
-        console.log("Render", render)
         res.render('team/showSquad', { showTeam: render, team: teams, teamid: teamID, odds: { odds1, odds2 } });
     });
 
@@ -440,7 +435,6 @@ module.exports = (app, hbs) => {
         } else {
             res.redirect('/teams')
         }
-        console.log(r)
     });
 
     //AdminConsole
@@ -519,12 +513,9 @@ function validateEmail(email) {
 async function siteAdminAuth(req, res, next) {
 
     if (!res.locals.isSiteAdmin && res.locals.isSiteAdmin != undefined) {
-        console.log("Not admin", req.session.user, res.locals.isSiteAdmin)
         return res.back()
     } else if ((await Storage.getSiteAdmin(req.session.user)).length ? false : true) {
-        console.log("Not admin", req.session.user, res.locals.isSiteAdmin)
         return res.back()
     }
-    console.log("Is Admin")
     next()
 }

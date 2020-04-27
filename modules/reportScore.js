@@ -3,9 +3,7 @@ const Storage = require('./storage')
 let kFactor = 24;
 let tolorance = 150;
 async function report(res, teamID) {
-    console.log(res);
     let unsorted = await Storage.getSquadForTeam(teamID);
-    console.log(unsorted);
     let team1 = []
     let team2 = []
 
@@ -21,7 +19,6 @@ async function report(res, teamID) {
 
     team1Odds = getOdds(team1Elo, team2Elo);
     team2Odds = 1 - team1Odds;
-    console.log(team1Odds, team2Odds);
 
     if (res == "TEAM1") {
         let diff = 1 - team1Odds;
@@ -35,7 +32,6 @@ async function report(res, teamID) {
         for (let i in team2) {
             let elo = parseInt(team2[i].elo);
             let newElo = elo + (kFactor * diff);
-            console.log(newElo)
             Storage.updateElo(team2[i].userID, team2[i].teamID, newElo)
         }
         deleteTeams(teamID);

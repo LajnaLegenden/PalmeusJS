@@ -301,7 +301,6 @@ class Database {
 
     async getAllGoingPlayers(teamID, length = false) {
         let res = await mysql.queryP(getAllGoingPlayers, [teamID, "Going"]);
-        console.log(res, "asdihasjkdhk")
         return res;
     }
 
