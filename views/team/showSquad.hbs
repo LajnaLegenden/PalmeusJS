@@ -1,5 +1,8 @@
 <main class="container">
     <h2 class="box">Teams</h2>
+        {{#if err}}<div class="alert alert-danger" role="alert">
+        {{err}}
+    </div>{{/if}}
     {{#if isTeamAdmin}}
     {{#if showTeam}}
     <div class="reportScore">
