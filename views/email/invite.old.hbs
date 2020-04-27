@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" style="font-family: Arial, Helvetica, sans-serif;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+</head>
+
+<body style="font-family: Arial, Helvetica, sans-serif;">
+    <main class="container" style="font-family: Arial, Helvetica, sans-serif; width: 80vh; margin: auto;">
+        <div class="center" style="font-family: Arial, Helvetica, sans-serif; margin: auto;">
+            <h1 style="font-family: Arial, Helvetica, sans-serif; text-align: center;">You have been invited {{team.name}}</h1>
+            <p style="font-family: Arial, Helvetica, sans-serif;">You have been invited to join a team on Palmeus JS by {{fromUser.firstName}} {{fromUser.lastName}}. Click
+                the button below to join</p>
+            <!-- FIX THIS LINK WHEN HAVE REAL DOMAIN -->
+            <a href="https://palmeusjs.ntit4.wtf/acceptInvite/{{inviteID}}" class="btn btn-primary" style="font-family: Arial, Helvetica, sans-serif; display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; border: 1px solid transparent; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border-radius: .25rem; transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out; color: #fff; background-color: #007bff; border-color: #007bff;">Join Team</a>
+            <br style="font-family: Arial, Helvetica, sans-serif;">
+            <p style="font-family: Arial, Helvetica, sans-serif;">If the link does not work, please click paste this link in your browser</p><br style="font-family: Arial, Helvetica, sans-serif;">
+            <a href="https://palmeusjs.ntit4.wtf/acceptInvite/{{inviteID}}" style="font-family: Arial, Helvetica, sans-serif;"><small style="font-family: Arial, Helvetica, sans-serif;">https://palmeusjs.ntit4.wtf/acceptInvite/{{inviteID}}</small></a>
+        </div>
+
+    </main>
+</body>
+
+</html>
